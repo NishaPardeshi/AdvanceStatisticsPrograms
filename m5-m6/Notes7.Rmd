@@ -1,0 +1,169 @@
+---
+title: "Notes7"
+author: "nisha pardeshi"
+date: "4 October 2018"
+output: html_document
+---
+
+Hypothesis test for proportions
+
+```{r}
+# Ex4:
+# a
+# H0: p = 17
+# H1: p != 17
+
+p0 = 0.17
+#SAmple
+n = 900
+alpha = 1-0.95
+phat = 0.22
+
+Z0 = (phat - p0)/(sqrt(p0*(1-p0)/n))
+Z0
+
+CV = qnorm(1-alpha/2)
+paste("CV",CV)
+# Rejection rule: 
+Z0 > CV || Z0 < -CV
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+# That means the difference between po0 and phat is not by chance.
+# It is very significant
+# kids have obesity larger than nation
+# If we do ampling 100 times 95% of times we reject the test.
+
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-qnorm(1-alpha/2), qnorm(1-alpha/2)), col = "red") # Critical value
+abline(v = Z0 , col = "blue") # Z0
+
+# pval
+# pval = 2 * P(Z>|Z0|)
+pval = 2 * (1 - pnorm(abs(Z0)))
+pval
+
+# pval is almost 0, it is less than alpha i.e 0.05 , reject H0
+
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(0:1, ntot, p=c(0.83,0.17), replace=T) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+phats = rowMeans(rvm)
+#xbars.sim = rowMeans(rvm)
+hist(phats, freq=F, main="Simulated H0 Hist")
+abline(v=c(quantile(phats, alpha/2), 
+           quantile(phats, 1-alpha/2)), col = "red") # Critical value
+abline(v = phat, col = 'blue')
+mean(phats < phat)
+
+```
+
+```{r}
+#b
+# a
+# H0: p = 29.5
+# H1: p != 29.5
+
+p0 = 0.295
+#SAmple
+n = 4800
+alpha = 1-0.95
+phat = 0.25
+
+Z0 = (phat - p0)/(sqrt(p0*(1-p0)/n))
+Z0
+
+CV = qnorm(1-alpha/2)
+paste("CV",CV)
+# Rejection rule: 
+Z0 > CV || Z0 < -CV
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+# That means the difference between po0 and phat is not by chance.
+# It is very significant
+# aldults have obesity larger than nation
+# If we do ampling 100 times 95% of times we reject the test.
+
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-qnorm(1-alpha/2), qnorm(1-alpha/2)), col = "red") # Critical value
+abline(v = Z0 , col = "blue") # Z0
+
+# pval
+# pval = 2 * P(Z>|Z0|)
+pval = 2 * (1 - pnorm(abs(Z0)))
+pval
+
+# pval is almost 0, it is less than alpha i.e 0.05 , reject H0
+
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(0:1, ntot, p=c((1-0.295),0.295), replace=T) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+phats = rowMeans(rvm)
+#xbars.sim = rowMeans(rvm)
+hist(phats, freq=F, main="Simulated H0 Hist")
+abline(v=c(quantile(phats, alpha/2), 
+           quantile(phats, 1-alpha/2)), col = "red") # Critical value
+abline(v = phat, col = 'blue')
+mean(phats < phat)
+```
+Type 1 error:
+P( Reject H0 | H0 is true) = alpha i.e level of significance
+We can change value of alpha, so its in our control
+
+Type 2 error
+P(Not Reject H0 | H0 is false)
+Not in our control
+
+
+Comparing two populatio means and Proportions
+```{r}
+
+# You can use this function for finding the degree of freedom for 2sample t test
+df.t <- function(s1, s2, n1, n2){
+  nom = (s1^2/n1 + s2^2/n2)^2
+  denom = (s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1)
+  nom/denom
+}
+
+na = 23
+nb = 23
+Xa = 5263.8
+Xb = 5512.2
+Sa = 37.3
+Sb = 52.8
+D0 = 0
+# Test statis
+T0 = (Xa - Xb - D0)/(sqrt(Sa^2/na + Sb^2/nb))
+paste('T0',T0)
+
+df = df.t(Sa,Sb,na,nb)
+paste('df',df)
+
+alpha = 0.05
+
+Talpha = qt(1-alpha, df)
+paste('Talpha',Talpha)
+
+# Rejion of Reject
+T0 < - Talpha
+# Reject H0 at alpha = 0.05
+# Supplier B provides much stronger products
+
+```
+Paired t test
+```{r}
+
+B1 = c(52.6)
+```
+

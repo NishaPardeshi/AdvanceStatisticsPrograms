@@ -1,0 +1,247 @@
+---
+title: "Note2"
+author: "nisha pardeshi"
+date: "14 September 2018"
+output: html_document
+---
+
+```{r}
+#IBM Shares example
+set.seed(123)
+n = 10000
+x <- c(5,0,-5)
+px <- c(0.11,0.8,0.09)
+samp = sample(x,n,px,replace = TRUE)
+mn <- mean(samp)
+paste("mean:",mn)
+paste("Standard deviation:",sd(samp))
+cmn <- c()
+cmean <- function(data) {
+  cmn <- cumsum(data)/seq_along(data)
+}
+plot(cmean(samp),type='l')
+```
+```{r}
+#Chepo Comp example
+set.seed(123)
+n = 10000
+x = c(-1000,4500,10000)
+px = c(12/210,88/210,110/210)
+s <- sample(x,n,px,replace = TRUE)
+paste("Mean:", mean(s)) 
+paste("Standard Deviation:", sd(s)) 
+plot(cmean(s),type='l')
+
+```
+```{r}
+# Euro to Dollar
+# Sales avg is 10 million Euro each month
+# Exchange Rate 1.4 $/Euro, but fluctuates
+# Dollar value of Sales next mnth ?
+
+# profit in Euro is 100,000 on average with stdev of 5,000 Euro, 
+# and it is normally distributed. 
+set.seed(123)
+n = 100
+profit <- rnorm(n, 100, 5)
+paste("SD Profit",sd(profit))
+paste("SD Profit in Dollar",mean(profit))
+
+exchangeRate = rnorm(n, 1.4, 0.05)
+
+# exchange rate is not constat. It is normally distributed with 
+# mean= 1.4 and sd = 0.05
+profitInDollar = exchangeRate*profit
+
+paste("Mean Profit in Dollar",mean(profitInDollar))
+
+paste("SD Profit in Dollar",sd(profitInDollar))
+paste("SD Profit",sd(profit)*1.4)
+hist(profit)
+hist(profitInDollar)
+```
+
+```{r}
+
+set.seed(123)
+# Question: If X and Y are dependent, What is Var(X+Y)
+n = 100
+#normal with mean = 10 and sd = 2
+x <- rnorm(n,10,2)
+# Y is dependent to X
+y <- 10 + 2*x + rnorm(n, 0, 2)
+plot(x,y)
+paste("Cov(x,y):",cov(x,y))
+paste("Cor(x,y):",cor(x,y))
+#normal with mean = 10 and sd = 2
+z = rnorm(n, 10, 2) 
+plot(x,z)
+paste("Cov(x,z):",cov(x,z))
+paste("Cor(x,z):",cor(x,z))
+
+# What is Var(X+Y)? # X and Y are dependent
+paste("Var(x+y): ",var(x+y))
+paste("Var(x) + Var(y): ",(var(x)+var(y)))
+paste("Var(x) + Var(y) + 2Cov(x,y): ",(var(x)+var(y)+2*cov(x,y)))
+
+# What is Var(X+Z)? # X and Z are independent
+paste("Var(x+z): ",var(x+z))
+paste("Var(x) + Var(z): ",(var(x)+var(z)))
+
+
+```
+
+```{r}
+# Students with study time of normal(mean = 18, sd = 2)
+set.seed(123)
+n=100
+study <- rnorm(n, 18, 2)
+#study
+
+gpa <-0.2*study +  rnorm(n, 0, 0.1)
+#gpa
+
+sal <- 5000*study + rnorm(n, 0, 20000)
+#sal
+
+paste("cov(study, gpa)", cov(study, gpa))
+paste("cov(study, salary)", cov(study, salary))
+
+paste("cor(study, gpa)", cor(study, gpa))
+paste("cor(study, salary)", cor(study, salary))
+
+plot(study, gpa)
+plot(study, salary)
+```
+
+```{r}
+# Read data from crime.csv
+crime = read.csv('crime(1).csv')
+scaled.crime = data.frame(crime$STATE, scale(crime[,-1]))
+library(dplyr)
+filter(scaled.crime, scaled.crime$MURDER > 2, scaled.crime$RAPE > 2)
+paste("Mean Scaled Murder:",round(mean(scaled.crime$MURDER), 10))
+paste("SD Scaled Murder:",sd(scaled.crime$MURDER))
+
+plot(scaled.crime$MURDER, scaled.crime$RAPE)
+```
+```{r}
+# Read the csv file
+crime <- read.csv('crime(1).csv')
+
+# To draw legend outside the plot area
+par(xpd=TRUE)
+
+plot(cex.main=0.8, crime$MURDER , 
+     crime$RAPE, col=c("red","blue"),pch=c(1,2), 
+     xlab = "Murder", ylab = "Rape")
+
+# Add a legend
+legend("bottomleft", 
+       legend = c("Murder", "Rape"), 
+       col = c("red","blue"), 
+       pch = c(1,2), 
+       bty = "o", 
+       cex = 1, 
+       text.col = "black", 
+       horiz = F,
+       inset = c(0, 1.1),
+       pt.cex = 1)
+
+
+cov(crime$MURDER,crime$RAPE)
+#25.013
+
+cor(crime$MURDER,crime$RAPE)
+#0.60122
+
+```
+
+```{r}
+# Convert data to Zscore using scale() function
+scaled.crime = data.frame(crime$STATE, scale(crime[,-1]))
+
+library(dplyr)
+
+#Mean of Z-score converted Murder data
+m <- mean(scaled.crime$MURDER)
+round(m,10)
+
+#Mean of Z-score converted Rape data
+rm <- mean(scaled.crime$RAPE)
+round(m,10)
+
+#Standard Deviation of Z-score converted Murder data
+sd <- sd(scaled.crime$MURDER)
+sd
+
+#Standard Deviation of Z-score converted Rape data
+sdr <- sd(scaled.crime$RAPE)
+round(sdr,10)
+
+plot(cex.main=0.8, scaled.crime$MURDER,
+     scaled.crime$RAPE,col=c("red","blue"),pch=c(1,2), 
+     xlab = "Murder", ylab = "Rape")
+
+# Add a legend
+legend("bottomleft", 
+       legend = c("Murder", "Rape"), 
+       col = c("red","blue"), 
+       pch = c(1,2), 
+       bty = "o", 
+       cex = 1, 
+       text.col = "black", 
+       horiz = F,
+       inset = c(0, 1.1),
+       pt.cex = 1)
+
+cov(scaled.crime$MURDER,scaled.crime$RAPE)
+#0.60122
+
+cor(scaled.crime$MURDER,scaled.crime$RAPE)
+#0.60122
+
+```
+
+```{r}
+x1 <- 1:6
+x2 <- 1:6
+Ey = mean(x1)*mean(1/x2)
+Ey
+
+
+# Or
+
+y = c()
+for(i in x1)
+  for(j in x2)
+    y = c(y,i/j)
+y
+
+mean(y)
+
+xi <- seq(0,72,12)
+
+x1i = sample(x1, 100,replace=TRUE)
+x2i = sample(x2, 100,replace=TRUE)
+y1i =x1i/x2i
+cummean=function(data)  {
+  cumsum = (data)/seq_along(data)
+}
+a = cummean(y1i)
+plot(cummean(y1i), type='l', col="red")
+
+x3i = sample(x1, 10000,replace=TRUE) 
+x4i = sample(x2, 10000,replace=TRUE) 
+y2i =x3i/x4i
+cummean=function(data)  {
+  cumsum = (data)/seq_along(data)
+}
+b = cummean(y2i)
+
+plot(main="n = 100", a, type='l', col="red", xlab="y", ylab="n")
+plot(main="n = 10000", b, type='l', col="green", xlab="n", ylab="y")
+
+
+```
+

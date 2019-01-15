@@ -1,0 +1,113 @@
+---
+title: "Notes3"
+author: "nisha pardeshi"
+date: "16 September 2018"
+output: html_document
+---
+```{r}
+#TWA prob mass function of no shows
+n = 6
+x = 0:6
+p=0.1
+dbinom(x,n,p)
+# Cumulative function
+pbinom(x,n,p)
+
+```
+
+```{r}
+# Create a binomial distribution <- to create random binomial distribution
+
+#Find 10 random values from a sample of 10 with probability of 0.4
+nsim = 10
+#n = c(0,1,2)
+n = 3
+p = 0.5
+s <- rbinom(nsim, n, p)
+s
+mean(s)
+sd(s)
+#P(X = 2)
+dbinom(2,n,p)
+#P(X >= 2) = 1- P(X<=1)
+1-pbinom(1,n,p)
+
+```
+
+```{r}
+# Create a sample of 10 numbers which are incremented by 1.
+x <- seq(0,10,by = 1)
+
+# Create the binomial distribution.
+y <- dbinom(x,n,p)
+
+# Plot the graph for this sample.
+plot(x,y)
+
+```
+```{r}
+x <- seq(0,9,by = 1)
+n = 9
+p = 0.8
+s <- dbinom(x,n,p)
+plot(x,s)
+plot(s)
+mean(s)
+```
+```{r}
+# Poisson Random VAriable
+npois = 100
+lambda = 0.5
+
+spois <- rpois(npois, lambda)
+plot(spois)
+
+#P(X = 1)
+dpois(1,0.5)
+
+#P(X < 2) = P(X <= 1)
+ppois(1,0.5)
+```
+
+```{r}
+#Negative Binomial
+numnsim = 10
+r = 3
+n = 2
+p = 0.5
+
+rnbinom(numnsim, n, p)
+
+# P(T2 = 4)
+dnbinom(4-2, 2, p)
+
+# similar to dbinom(r-1, n-1, p)*p
+dbinom(2-1, 4-1, p)*p
+
+# P(T2 < 4) = P(T2 <= 3)
+pnbinom(3-2, 2, p)
+
+
+```
+
+```{r}
+# Uniform Random Variable
+# Simulate 1000 RV between 0 and 20
+
+set.seed(123)
+a = 0 
+b = 20
+numsimunif = 1000
+
+u <- runif(numsim, a, b)
+u1 <- runif(20)
+hist(u,freq = FALSE)
+hist(u1,freq = FALSE)
+# P(2<X<6)
+punif(6,0,20) - punif(2,0,20)
+
+# P(X=2)
+dunif(2,0,20)
+
+```
+

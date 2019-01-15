@@ -1,0 +1,110 @@
+---
+title: "Notes1"
+author: "nisha pardeshi"
+date: "14 September 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+
+## R Markdown
+
+
+```{r}
+#Law of large numbers
+# 0 - hard calls - 30%
+# 1 - easy calls - 70%
+# n is nos of samples to be generated
+# x is sample values
+# px is probability of x
+
+set.seed(123)
+n = 100
+x= c(0, 1)
+px = c(0.3, 0.7)
+s = sample(x,n,px,replace=TRUE)
+
+# Making a cumulative sum 
+cumSumX <- cumsum(s)
+
+# Define var to store cumulative mean
+cumMeanX <- c()
+
+for(i in 1:n) {
+  cumMeanX[i] = cumSumX[i]/i
+}
+
+# Plot the cululative mean
+plot(cumMeanX,type='l')
+
+```
+
+
+## R Markdown
+
+
+```{r cars}
+#Law of large numbers
+# 0 - hard calls - 30%
+# 1 - easy calls - 70%
+# n is increased to 10000
+# x is sample values
+# px is probability of x
+set.seed(123)
+n = 10000
+x= c(0, 1)
+px = c(0.3, 0.7)
+s = sample(x,n,px,replace=TRUE)
+
+# Making a cumulative sum 
+cumSumX <- cumsum(s)
+
+# Define var to store cumulative mean
+cumMeanX <- c()
+
+for(i in 1:n) {
+  cumMeanX[i] = cumSumX[i]/i
+}
+
+# Plot the cululative mean
+plot(cumMeanX,type='l')
+
+```
+
+```{r}
+mean(s)
+# As we can see, as number of observed outcome increases the relative frequency of the outcome converges to a number that is the mean, in this case 0.7
+```
+```{r}
+library(dplyr)
+grad <- read.csv("http://tiny.cc/isqs6350_grad", header = TRUE)
+grad[is.na(grad)] <- 0
+df = select(grad,COL,FacTeaching)
+#Count
+t <- table(df)
+#Prob
+t
+p <- prop.table(t)
+p
+rowSums(p)
+
+sum(p[4,c(1:6)])
+
+colSums(p)
+
+```
+```{r}
+
+x <- c(0,1,2,3,4)
+px <- c(0.02,0.03,0.05,0.1,0.8)
+Ex <- sum(x*px)
+Ex
+
+Vx <- sum((x-Ex)^2 * px)
+Vx
+
+SD <- sqrt(Vx)
+SD
+```
+

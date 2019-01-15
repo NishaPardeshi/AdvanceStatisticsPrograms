@@ -1,0 +1,1793 @@
+---
+title: "Final"
+author: "nisha pardeshi"
+date: "6 October 2018"
+output: html_document
+---
+CENTRAL LIMIT THEORM
+
+**Case 1: Population is normally distributed, we take a sample of size n, then what is the distribution of $\bar{X}$? What sample size is appropriate?**
+
+In this problem, we simulate normally distributed random samples for the height of adult women in the US.
+```{r}
+set.seed(123)
+# In this example it refers to the size of the pool of adult women.
+n = 5
+#  In this example nsim refers to a set of nsim potential (random) future experiences of the pool of the n adult women.
+nsim = 1000
+# Heights are normally distributed and the true parameters are as follow:
+mu = 65 #inch
+sigma = 3.5 #inch
+
+ntot = n*nsim 
+
+# Since we assume population is normally distributed we use rnorm
+rv   = rnorm(ntot, mu, sigma)
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+
+xbar = rowMeans(rvm)
+
+# You can find rowMean by using apply finction as well. 
+# xbar = apply(rvm, MARGIN=1, FUN=mean), MARGIN=1 means we apply our function on rows. 
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average height of", n, "women"))
+
+qqnorm(xbar)
+qqline(xbar)
+```
+Since our population is normally distributed, $\bar{X}$ with any sample size (n) is normally distributed.
+
+**Standard error: ** The standard error (SE) of a statistic (usually an estimate of a parameter) is the standard deviation of its sampling distribution or an estimate of that standard deviation. If the parameter or the statistic is the mean, it is called the standard error of the mean (SEM). 
+```{r}
+# By theory:
+sem.t = sigma/sqrt(n)
+sem.t
+
+# By simulation
+sem.s = sd(xbar)
+sem.s
+```
+
+Lets compare the shape of population $X$ versus the shape of sample means $\bar{X}$. 
+
+```{r}
+# Population:
+x = seq(50, 80, 0.01)
+plot(x, dnorm(x, mu, sigma), type = "l", ylim = range(0, 0.3), xlab = "X is black, and Xbar is red")
+
+# sample: Sample means are red.
+points(x, dnorm(x, mean(xbar), sd(xbar)), type = "l", col="red")
+```
+
+**Case 2: Population is not normally distributed, we take a sample of size n, then what is the distribution of $\bar{X}$? What sample size is appropriate?**
+
+In this problem, we simulate the time between arrival of customers to a fast food with a rate of 0.5 customers per minutes Time between arrivals are exponentially distributed.
+
+```{r}
+# In this example it refers to the size of the pool of customers.
+n = 30
+#  In this example nsim refers to a set of nsim potential (random) future experiences of the pool of the n customers.
+nsim = 1000
+# Time between arrivals are exponentially distributed and the true parameter are as follow:
+lambda = 0.5 #customers per minutes
+
+ntot = n*nsim 
+
+rv   = rexp(ntot, lambda)
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+
+xbar = rowMeans(rvm)
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average TBA of ", n, "customers"))
+
+qqnorm(xbar)
+qqline(xbar)
+
+
+```
+
+$\bar{X}$ is not normally distributed. In order to make it normal we need to increase the sample size. That's the entire message of the central limit theorem.
+```{r}
+set.seed(1234)
+
+# Change sample size
+n = 57
+
+ntot = n*nsim 
+
+rv   = rexp(ntot, lambda)
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+
+xbar = rowMeans(rvm)
+
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average TBA of ", n, "customers"))
+
+qqnorm(xbar)
+qqline(xbar)
+```
+
+Now we can see that $\bar{X}$ is normally distributed.
+
+
+Sample Size Condition:  A normal model provides 
+an accurate approximation to the sampling 
+distribution of $\bar{X}$ if the sample size n is larger than 
+10 times the squared skewness and larger than 10 
+times the absolute value of the kurtosis.
+
+What is the appropriate sample size for the TBA example? 
+
+
+```{r}
+library(e1071)
+skew <- skewness(rv)
+kurt <- kurtosis(rv)
+
+10*skew^2
+10*abs(kurt)
+```
+
+**Case 3: Population is a discrete random variable and the distribution is highly skewed. We take a sample of size n, then what is the distribution of $\bar{X}$? What sample size is appropriate?**
+
+In this problem we consider a simplified model of the insurance industry. A life insurance company sells a policy to a 21-year-old female. (Males die off faster at this age). 
+
+The policy pays 100 thousand dollars if the insured person dies within the next five years. The company collects 1 thousand dollars at the beginning of each year as payment for the insurance.
+
+
+We measure our numbers in thousands; the insurance policy payoff will be written as \$100 and the annual premium is \$1. Let the random variable *X* represent the amount the company earns from the policy, \$1 per year less the \$100 it must pay if the insured dies in the next 5 years. The probability that a randomly chosen female will die each year at this age is approximately 0.002. Based on the information given we obtain the distribution of the random variable X provided in the table below. Note that 99% of the time the insurance company makes a small profit (the premium) but the other 1% of the time the company loses a lot of money.
+
+Enter the sample size. In this example it refers to the size of the pool of insured customers.
+
+```{r}
+set.seed(123)
+n = 100
+
+nsim = 1000
+
+# Enter probability model - this one is the insurance example
+x = c(-99,-98,-97,-96, -95, 5)
+p = c(.002, .002, .002, .002, .002, .99)
+
+ntot = n*nsim
+
+rv = sample(x, ntot, p, replace=TRUE)
+ 
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+ 
+xbar = rowMeans(rvm)
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average of", n, "policies"))
+
+```
+
+$\bar{X}$ is not normally distributed. 
+
+Increase the sample size and examine the distribution of $\bar{X}$ again.  
+
+```{r}
+set.seed(123)
+
+n = 2000
+
+nsim = 1000
+
+# Enter probability model - this one is the insurance example
+x = c(-99,-98,-97,-96, -95, 5)
+p = c(.002, .002, .002, .002, .002, .99)
+
+ntot = n*nsim
+
+rv = sample(x, ntot, p, replace=TRUE)
+ 
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+ 
+xbar = rowMeans(rvm)
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average of", n, "policies"))
+abline(v = 4.4, col = "red")
+```
+
+```{r}
+library(e1071)
+skew <- skewness(rv)
+kurt <- kurtosis(rv)
+
+10*skew^2
+10*abs(kurt)
+```
+
+
+**Question: ** Estimate the probability that average earnings is more than 4.4?
+
+
+```{r}
+# Theoritical Answer
+# P(Xbar >4.4)
+# By theory Xbar is normally distributed
+mu = sum(x*p)
+mu
+
+var = sum((x-mu)^2 * p)
+sigma = sqrt(var)
+sigma
+
+sigma/sqrt(n)
+
+# P(Xbar >4.4) = 
+1-pnorm(4.4, mu, sigma/sqrt(n))
+
+# By Simulation
+mean(xbar > 4.4)
+
+```
+
+
+# Simulating Sample Proportion
+
+
+```{r}
+set.seed(123)
+
+n = 200
+
+nsim = 1000
+
+# Enter probability model - this one is the insurance example
+x = c(0, 1)
+p = c(.95, 0.05)
+
+ntot = n*nsim
+
+rv = sample(x, ntot, p, replace=TRUE)
+ 
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+ 
+xsum = rowSums(rvm)
+
+phat = xsum/n
+
+hist(phat, freq=FALSE, main = "Distribution of proportion of Vegeterians")
+
+```
+
+
+Interval Estimation for population proportion
+```{r}
+# Of 100 exec surveyed, 93 stated that sal of top mangmt should be based on performance.
+phat = 93/100
+n = 100
+
+paste("The smaple size condition",n > max(10/phat, 10/(1-phat)))
+# n is not large enough CI is not reliable
+
+# Construct 95% CI
+# Assume phat is normally distributed
+alpha = 1 - 0.95
+CV = qnorm(1- alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1 - phat)/n)
+paste("SE", SE)
+
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", LL)
+paste("UL", UL)
+
+#The mean balance of 95% of samples of the size will fall between [0.88,0.98].
+# Roughly 95% of the intervals so constructed would actually contain Mu
+```
+Interval Estimation for population mean (Sigma is known)
+
+```{r}
+library(e1071)
+# Xbar = 102, n=50, sigma=10, what is 95% CI of mu
+Xbar = 102
+n=50
+sigma=10
+alpha=1-0.95
+
+#Zalpha/2 
+CV = qnorm(1-alpha/2)
+paste("CV", CV)
+
+SE = sigma/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", LL)
+paste("UL", UL)
+
+#The mean balance of 95% of samples of the size will fall between [99.23, 104.77].
+# Roughly 95% of the intervals so constructed would actually contain Mu
+```
+
+```{r}
+set.seed(123)
+
+mu = 102
+sigma = 10 
+
+n = 50 # sample size
+nsim = 100000 # Number of samples. Each sample is size n.
+ntot = n*nsim
+
+rv = rnorm(ntot, mu, sigma) # Generating many random numbers
+rvm = matrix(rv, ncol=n, byrow=TRUE) # Convert data to a nsim*n matrix
+
+xbars = apply(rvm,1, mean) # It's like finding rowMeans(rvm)
+
+SE = sigma/sqrt(n)
+paste("SE", SE)
+
+alpha = 0.05
+
+CV = qnorm(1- alpha/2)
+paste("CV", CV)
+
+lower = xbars - CV * SE
+upper = xbars + CV * SE
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+
+#head(check)
+
+## An estimate of the true confidence level of the ordinary confidence interval:
+head(cbind(xbars, sigma, n, lower, upper, mu, check), 5) 
+
+# What proportion of the created confidence intervals contain mu?
+paste("proportion of the created confidence intervals contain mu",mean(check))
+```
+Interval Estimation for population mean (Sigma is not known)
+```{r}
+#Xbar = 81, s=30, n=16 
+# Assume population normally distributed
+# 95% of CI of mu
+Xbar = 81
+s = 30
+n = 16
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(1-alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", LL)
+paste("UL", UL)
+#The mean balance of 95% of samples of the size will fall between [65.014, 96.986].
+# Roughly 95% of the intervals so constructed would actually contain Mu
+
+```
+
+```{r}
+sd = 30
+n=16
+# We need to find sample standard deviations. 
+s = apply(rvm,1, sd)
+
+CVQ = qnorm(1-alpha/2)
+SE = s/sqrt(n)
+
+# First use z critical value
+
+lower = xbars - CVQ * SE
+upper = xbars + CVQ * SE
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+# What proportion of the created confidence intervals contain mu?
+paste("proportion of the created confidence intervals contain mu norm dist",mean(check))
+
+# Second use t critical value
+CV = qt(1-alpha/2, df)
+
+lower = xbars - CV * SE
+upper = xbars + CV * SE
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+
+# What proportion of the created confidence intervals contain mu?
+paste("proportion of the created confidence intervals contain mu t dist",mean(check))
+
+## Notice that the coverage rate is closer to 95% but not perfect.
+
+head(cbind(xbars, s, n, lower, upper, mu, check), 5) 
+
+```
+```{r}
+library(e1071)
+library(car)
+# Read Teabags csv file
+teabag = read.csv('Teabags.csv')
+
+hist(teabag$Teabags)
+qqPlot(teabag$Teabags)
+
+# Calculate the mean of sample
+Xbar = mean(teabag$Teabags)
+# Calculate standard deviation of sample
+s = sd(teabag$Teabags)
+n = 50
+
+paste("Nos of sample criteria",n > max (10*(skewness(teabag$Teabags))^2, 10*(abs(kurtosis(teabag$Teabags)))))
+
+#95% CI
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(1-alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", LL)
+paste("UL", UL)
+
+
+```
+(d) Explain how to understand the 95% of the interval via simulation. Use simula-
+tion in your answer. Realize, of course, that the distributions that produce the
+data cannot possibly be normal, but do the simulation using normal distribution
+anyway.
+```{r}
+set.seed(1234)
+
+mu = mean(teabag$Teabags) #inch # This is a true population parameter.
+sigma = sd(teabag$Teabags) #inch # This is a true population parameter.
+
+n = length(teabag$Teabags) # sample size
+nsim = 10000 # Number of samples. Each sample is size n.
+
+ntot = n*nsim
+
+rv = rnorm(ntot, mu, sigma) # Generating many random numbers
+rvm = matrix(rv, ncol=n, byrow=TRUE) # Convert data to a nsim*n matrix
+
+xbars = apply(rvm,1, mean) # It's like finding rowMeans(rvm)
+
+alpha = 0.05
+
+lower = xbars - qnorm(1-alpha/2)*sigma/sqrt(n)
+upper = xbars + qnorm(1-alpha/2)*sigma/sqrt(n)
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+
+head(check)
+
+head(cbind(xbars, sigma, n, lower, upper, mu, check), 3)
+
+# What proportion of the created confidence intervals contain mu?
+mean(check)
+```
+
+```{r}
+library(e1071)
+library(car)
+# Read Teabags csv file
+teabag = read.csv('Teabags.csv')
+# Calculate the mean of sample
+mean(teabag$Teabags)
+# Calculate standard deviation of sample
+sd(teabag$Teabags)
+hist(teabag$Teabags)
+qqPlot(teabag$Teabags)
+
+Xbar = mean(teabag$Teabags)
+s = sd(teabag$Teabags)
+n = 50
+
+n
+10*(skewness(teabag$Teabags))^2
+10*(abs(kurtosis(teabag$Teabags)))
+n > max (10*(skewness(teabag$Teabags))^2, 10*(abs(kurtosis(teabag$Teabags))))
+n > max(10*((skewness(teabag$Teabags))^2), (10*(abs(kurtosis(teabag$Teabags)))))
+#95% CI
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", LL)
+paste("UL", UL)
+
+
+```
+```{r}
+library(e1071)
+library(car)
+# Read Teabags csv file
+rt = read.csv('ResolutionTime.csv')
+
+hist(rt$Days)
+qqPlot(rt$Days)
+
+# Calculate the mean of sample
+Xbar = mean(rt$Days)
+# Calculate standard deviation of sample
+s = sd(rt$Days)
+n = length(rt$Days)
+
+paste("Nos of sample criteria",n > max (10*(skewness(teabag$Teabags))^2, 10*(abs(kurtosis(teabag$Teabags)))))
+
+#95% CI
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(1-alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", LL)
+paste("UL", UL)
+
+#The number of days to resolve complaints is normally distributed.
+#No, the assumption is not valid data suggest the population distribution is skewed to the right.
+#validity of the results Since the sample size is fairly large, the t-distribution can still be used due to the
+#Central Limit Theorem, so the results are valid.
+
+```
+
+
+DETERMINE THE SAMPLE SIZE OF POPULATION MEAN
+
+What sample size is needed to have 90% condence of estimating the population mean
+front-line employee turnover cost to within plus or $300?
+```{r}
+e = 300
+# 90% CI
+alpha = 1- 0.90
+CV = qnorm(1-alpha/2)
+paste("CV", CV)
+# sample size
+sn = (CV * s / e)^2
+paste('sample size is needed: ',sn)
+```
+DETERMINE THE SAMPLE SIZE OF POPULATION PROPORTION
+
+How many member organizations need to be selected to have 95% condence of estimat-
+ing the population proportion of organizations that have both talent and development
+programs in place to drive human-capital management to within plus or $0:035? As-
+sume that the association's survey provides a reliable point estimate of the proportion.
+Sampling error e = $0:035
+```{r}
+e = 0.035
+# 95% CI
+alpha = 1-0.95
+CV = qnorm(1-alpha/2)
+paste("CV", CV)
+# sample size
+sn = (CV/e)^2 * phat * (1-phat)
+paste('sample size is needed: ',sn)
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN SIGMA IS KNOWN ONE SIDED TEST POSITIVE
+
+The policy of a particular bank branch is that its ATMs must be stocked with
+enough cash to satisfy customers making withdrawals over an entire weekend. At this branch
+the expected (i.e., population) average amount of money withdrawn from ATM machines per
+customer transaction over the weekend is $160 with an expected (i.e., population) standard
+deviation of $30. Suppose that a random sample of 36 customer transactions is examined and
+it is observed that the sample mean withdrawal is $172. Test at the 0.05 level of signicance
+to determine whether mean withdrawals exceed $160.
+```{r}
+# Ho: Mu <= 160
+# H1: Mu >160
+
+mu0 = 160
+
+# Sampling info
+n=36
+sigma = 30
+xbar = 172
+
+# Test Stat
+SE = sigma/sqrt(n)
+ZStat = (xbar-mu0)/SE
+paste("ZStat",ZStat)
+
+# Critical Value -One sided
+alpha = 1-0.95
+CV = qnorm(1-alpha)
+paste("CV",CV)
+# Rejection rule:
+paste("CV Rejection Rule",ZStat > CV)
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# pval =  Observed level of signiicance
+# P-value: P(Z > ZStat)
+pval = 1 - pnorm(ZStat)
+paste("pval",pval)
+#If less than given level of significance we can reject it.
+# Is P-val is less than alpha, we reject it
+paste("pval rejection rule",pval < alpha)
+
+# What happened graphically:
+set.seed(123)
+t = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(t, dnorm(t), main = "H0 distribution", type = "l", yaxs="i")
+abline(v= CV, col = "red") # Critical value
+abline(v = ZStat , col = "blue") # Z0
+
+# 0.2% of time we can observe it
+# Simulate the null distribution by normall distribution:
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = rnorm(ntot, mu0, sigma) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+xbars.sim = rowMeans(rvm)
+hist(xbars.sim, freq=F, main ="simulated Resampling Xbar Histogram for Xbars")
+# This is not hypothesis, we created sample from sampling data. We dont need abline 
+
+
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN SIGMA IS KNOWN ONE SIDED TEST NEGATIVE
+```{r}
+# Ho: Mu >= 160
+# H1: Mu < 160
+
+mu0 = 160
+
+# Sampling info
+n=36
+sigma = 30
+xbar = 172
+
+# Test Stat
+SE = sigma/sqrt(n)
+ZStat = (xbar-mu0)/SE
+paste("ZStat",ZStat)
+
+# Critical Value - One sided
+alpha = 1-0.95
+CV = qnorm(1-alpha)
+paste("CV",CV)
+# Rejection rule:
+paste("CV Rejection Rule",ZStat < -CV)
+
+#Conclusion:
+#We fail to Reject Null Hypothysis at alpha = 0.05
+
+# pval =  Observed level of signiicance
+# P-value: P(Z < ZStat)
+pval = pnorm(ZStat)
+paste("pval",pval)
+#If less than given level of significance we can reject it.
+# Is P-val is greater than alpha, we fail to reject it
+paste("pval rejection rule",pval < alpha)
+
+# What happened graphically:
+set.seed(123)
+t = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(t, dnorm(t), main = "H0 distribution", type = "l", yaxs="i")
+abline(v= -CV, col = "red") # Critical value
+abline(v = ZStat , col = "blue") # Z0
+
+# 0.2% of time we can observe it
+# Simulate the null distribution by normall distribution:
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+```
+
+
+HYPOTHESIS TEST ONE SAMPLE MEAN SIGMA IS KNOWN TWO SIDED TEST
+
+Let X denote the GPA of an MSDS student at Texas Tech. It is widely known that, for this
+population,  = 0.05. The population mean is not widely known. However, it is commonly
+believed that the average GPA is 3.6. We wish to test this hypothesis using a sample of size
+25 and a level of signicance of 0.05.
+(a) Suppose 25 students are sampled and the sample average GPA is 3.18. State and
+interpret the conclusion of the test.
+
+```{r}
+# Ho: Mu = 3.6
+# H1: M != 3.6
+
+mu0 = 3.6
+
+# Sampling info
+n=25
+sigma = 0.05
+xbar = 3.18
+
+# Test Stat
+ZStat = (xbar-mu0)/(sigma/sqrt(n))
+paste("ZStat",ZStat)
+
+# Critical Value -One sided
+#Level of significance
+alpha = 0.05
+CV = qnorm(1-alpha/2)
+paste("CV",CV)
+# Rejection rule:
+paste("CV Rejection Rule",(ZStat > CV)||(ZStat < -CV))
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# pval =  Observed level of signiicance
+# P-value: P(Z > ZStat)
+pval = 2 * (1 - pnorm(abs(ZStat)))
+paste("pval",pval)
+#If less than given level of significance we can reject Ho
+# Is P-val is less than alpha, we reject HO
+paste("pval rejection rule",pval < alpha)
+
+# What happened graphically:
+z = seq(-45, 4, 0.03) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-CV, CV), col = "red") # Critical value
+abline(v = ZStat , col = "blue") # Z0
+
+# Simulate the null distribution by normall distribution:
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = rnorm(ntot, mu0, sigma) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+xbars.sim = rowMeans(rvm)
+hist(xbars.sim, freq=F, main ="simulated Resampling Xbar Histogram for Xbars")
+# This is not hypothesis, we created sample from sampling data. We dont need abline 
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN SIGMA IS NOT KNOWN ONE SIDED TEST POSITIVE
+
+A rm is considering expanding into an expensive area in downtown San
+Francisco. In order to cover costs, the rm needs rents in this area to average more than
+$1,500 per month. Are rents in San Francisco high enough to justify the expansion? Rents
+obtained for a sample of size n=115; the average rent was $1,657 with s = $581.
+
+```{r}
+# Ho: Mu <= 1500
+# H1: M > 1500
+
+mu0 = 1500
+
+# Sampling info
+n=115
+s = 581
+xbar = 1657
+
+# The null distribution xbar has foll param
+muXbar = mu0
+sigmaXbar = s/sqrt(n) # which we call SE of Xbar
+# Test Stat
+Tstat = (xbar - mu0)/sigmaXbar
+paste("Tstat",Tstat)
+
+# Critical Value -One sided
+alpha = 0.05
+df = n-1
+CV = qt(1-alpha, df)
+paste("CV",CV)
+# Rejection rule:
+paste("CV Rejection Rule",Tstat > CV)
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# pval =  Observed level of signiicance
+# P-value: P(T > Tstat)
+pval = 1 - pt(Tstat, df)
+paste("pval",pval)
+#If less than given level of significance we can reject Ho
+# Is P-val is less than alpha, we reject it
+paste("pval rejection rule",pval < alpha) 
+  
+t = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(t, dnorm(t), main = "H0 distribution", type = "l", yaxs="i")
+abline(v= CV, col = "red") # Critical value
+abline(v = T0 , col = "blue") # TStat
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN SIGMA IS NOT KNOWN ONE SIDED TEST NEGATIVE
+
+```{r}
+# Ho: Mu >= 1500
+# H1: M < 1500
+
+mu0 = 1500
+
+# Sampling info
+n=115
+s = 581
+xbar = 1657
+
+# The null distribution xbar has foll param
+muXbar = mu0
+sigmaXbar = s/sqrt(n) # which we call SE of Xbar
+# Test Stat
+Tstat = (xbar - mu0)/sigmaXbar
+paste("Tstat",Tstat)
+
+# Critical Value -One sided
+alpha = 0.05
+df = n-1
+CV = qt(1-alpha, df)
+paste("CV",CV)
+# Rejection rule:
+paste("CV Rejection Rule",Tstat < -CV)
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# pval =  Observed level of signiicance
+# P-value: P(T > Tstat)
+pval = pt(Tstat, df)
+paste("pval",pval)
+#If less than given level of significance we aceept Ho
+# Is P-val is greater than alpha, we accept it
+paste("pval rejection rule",pval < alpha)
+
+t = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(t, dnorm(t), main = "H0 distribution", type = "l", yaxs="i")
+abline(v= -CV, col = "red") # Critical value
+abline(v = Tstat , col = "blue") # Tstat
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN SIGMA IS NOT KNOWN TWO SIDED TEST
+
+A company that manufactures steel troughs requires that the width of the trough be between
+8.31 inches and 8.61 inches. The data in the accompanying table contains the widths of the
+troughs, in inches, for a sample of n=50 (data is listed in steel.csv). Complete parts (a)
+through (d).
+(a) At the 0.01 level of signicance, is there evidence that the mean width of the troughs
+is dierent from 8.46 inches? (Use both critical value and p-value approach. )
+
+```{r}
+x <- read.csv('steel.csv')
+#head(x)
+#a 
+# Ho: Mu = 8.46
+# H1: M  !=  8.46
+
+mu0 = 8.46
+
+# Sampling info
+n=50
+s = sd(x$width)
+xbar = mean(x$width)
+
+SE = s/sqrt(n)
+# Test Stat
+TStat = (xbar - mu0)/SE
+paste("TStat",TStat)
+
+# Critical Value -Two sided
+alpha = 0.01
+df = n-1
+CV = qt(1-alpha/2, df)
+paste("CV",CV)
+# Rejection rule:
+paste("CV Rejection Rule",T0 > CV || T0 < -CV)
+
+#pval
+#pval = 2* P(T>|T0|)
+pval = 2 * (1 - pt(abs(T0), n-1))
+round(pval,5)
+paste("pval rejection rule",pval < alpha)
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.01
+
+# What happened graphically:
+z = seq(-6, 4, 0.03) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-CV, CV), col = "red") # Critical value
+abline(v = TStat , col = "blue") # Z0
+
+# b
+# Assumption is that the population is normally distributed
+#c
+library(e1071)
+hist(x$width)
+qqnorm(x$width)
+qqline(x$width)
+# Based on sample we cannot conclude normality of the population
+qqnorm(x$width)
+n
+10*((skewness(x$width))^2)
+(10*(abs(kurtosis(x$width))))
+paste("Sample size criteria",n > max(10*((skewness(x$width))^2), (10*(abs(kurtosis(x$width))))))
+# sample size is large enough, based on CLT we can assume the population is normal.
+```
+SIMULATION BY BOOTSTRAPPING
+
+```{r}
+#Simulation by Bootstrapping ( Resampling from  data)
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(x$width, ntot,replace = T) # sampling from data
+rvm = matrix(rv, nrow = nsim)
+xbars.sim = rowMeans(rvm)
+hist(xbars.sim, freq=F, main ="simulated H0 Histogram for Xbars")
+abline(v = quantile(xbars.sim, 0.95), col = "red")
+abline(v = xbar, col = "blue") 
+
+#pvalue
+mean(xbars.sim > xbar)
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN POPULATION PROPORTION ONE SIDED TEST POSITIVE
+
+The worldwide market share for a web browser was 20.5% in a recent
+month. Suppose that a sample of 100 random students at a certain university nds
+that 25 use the browser. Complete parts (a) through (c) below.
+(a) At the 0.05 level of signicance, is there evidence that the market share for the web
+browser at the university is greater than the worldwide market share of 20.5%?
+
+```{r}
+# H0: p <= 0.205
+# H1: p > 0.205
+
+p0 = 0.205
+#SAmple
+X = 25
+n = 100
+alpha = 0.05
+phat = X/n
+
+paste("n criteria", n > max(10/phat, 10/(1-phat)))
+# As n is large enough, we can assume phat is normally distributed
+
+SE = sqrt(p0*(1-p0)/n)
+ZStat = (phat - p0)/SE
+paste("ZStat", ZStat)
+
+CV = qnorm(1-alpha)
+paste("CV",CV)
+# Rejection rule: 
+paste("CV Rejection Rule: ",ZStat > CV)
+
+#Conclusion:
+#Accept Null Hypothysis at alpha = 0.05
+
+
+# pval
+# pval = P(ZStat)
+pval = (1 - pnorm(ZStat))
+paste("pval",pval)
+paste("pval rejection rule",pval < alpha)
+# pval is almost 0.1324928, it is greater than alpha i.e 0.05 , fail to reject H0
+
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=CV, col = "red") # Critical value
+abline(v = ZStat , col = "blue") # Z0
+
+
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(0:1, ntot, p=c((1-0.205),0.205), replace=T) 
+rvm = matrix(rv, nrow = nsim)
+phats = rowMeans(rvm)
+#xbars.sim = rowMeans(rvm)
+hist(phats, freq=F, main="Simulated H0 Hist")
+abline(v= quantile(phats, 1-alpha), col = "red") # Critical value
+abline(v = phat, col = 'blue')
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN POPULATION PROPORTION ONE SIDED TEST NEGATIVE
+
+```{r}
+# H0: p <= 0.205
+# H1: p > 0.205
+
+p0 = 0.205
+#SAmple
+X = 25
+n = 100
+alpha = 0.05
+phat = X/n
+
+paste("n criteria", n > max(10/phat, 10/(1-phat)))
+# As n is large enough, we can assume phat is normally distributed
+
+SE = sqrt(p0*(1-p0)/n)
+ZStat = (phat - p0)/SE
+paste("ZStat", ZStat)
+
+CV = qnorm(1-alpha)
+paste("CV",CV)
+# Rejection rule: 
+paste("CV Rejection Rule: ",ZStat > -CV)
+
+#Conclusion:
+#Accept Null Hypothysis at alpha = 0.05
+
+# pval
+# pval = P(Z < ZStat)
+pval = (pnorm(ZStat))
+paste("pval",pval)
+paste("pval rejection rule",pval < alpha)
+# pval is almost 0.1324928, it is greater than alpha i.e 0.05 , fail to reject H0
+
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=-CV, col = "red") # Critical value
+abline(v = ZStat , col = "blue") # Z0
+
+
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(0:1, ntot, p=c((1-0.205),0.205), replace=T) 
+rvm = matrix(rv, nrow = nsim)
+phats = rowMeans(rvm)
+#xbars.sim = rowMeans(rvm)
+hist(phats, freq=F, main="Simulated H0 Hist")
+abline(v= -quantile(phats, 1-alpha), col = "red") # Critical value
+abline(v = phat, col = 'blue')
+```
+HYPOTHESIS TEST ONE SAMPLE MEAN POPULATION PROPORTION TWO SIDED TEST
+
+According to the Centers for Disease Control and Prevention (CDC), 17% of
+school-age children in the United States are obese, while 33.8% of adults in the U.S. are
+obese (having a body mass index (BMI) of at least 30).
+(a) In 2005 the Marion County (Indiana) Health Department conducted a program wherein
+a sample of 90147 school-age children had their heights and weights measured, allowing
+exact determination of their BMIs. In this survey 22% of the children measured were
+obese. Does this indicate that the true obesity rate for children in Marion County is
+dierent from the national average?
+
+```{r}
+# H0: p = 17
+# H1: p != 17
+
+p0 = 0.17
+#SAmple
+n = 900
+alpha = 1-0.95
+phat = 0.22
+
+SE = sqrt(p0*(1-p0)/n)
+ZStat = (phat - p0)/SE
+Z0
+
+CV = qnorm(1-alpha/2)
+paste("CV",CV)
+# Rejection rule: 
+paste("CV Rejection Rule",ZStat > CV || ZStat < -CV)
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+# That means the difference between po0 and phat is not by chance.
+# It is very significant
+# kids have obesity larger than nation
+# If we do sampling 100 times 95% of times we reject the test.
+
+# pval
+# pval = 2 * P(Z > |Z0|)
+pval = 2 * (1 - pnorm(abs(ZStat)))
+paste("pval",pval)
+paste("pval rejection rule",pval < alpha)
+
+# pval is almost 0, it is less than alpha i.e 0.05 , reject H0
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-CV, CV), col = "red") # Critical value
+abline(v = ZStat , col = "blue") # Z0
+
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(0:1, ntot, p=c(0.83,0.17), replace=T) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+phats = rowMeans(rvm)
+#xbars.sim = rowMeans(rvm)
+hist(phats, freq=F, main="Simulated H0 Hist")
+abline(v=c(quantile(phats, alpha/2), 
+           quantile(phats, 1-alpha/2)), col = "red") # Critical value
+abline(v = phat, col = 'blue')
+mean(phats < phat)
+```
+TYPE I AND TYPE II Errors
+
+```{r}
+# Average speed in Marsha Sharp freeway:
+# H0: mu <= 65
+# Ha: mu > 65 
+
+mu0 = 65
+sigma = 6 #sigma is known
+#sigma = 8
+
+# Type I Error. We determine it:
+#alpha = 0.05
+alpha = 0.01
+
+# But imagine the true mean is different.
+mu.true = 68
+
+# sample size:
+#n = 30
+n=100
+se = sigma/sqrt(n)
+# What happened graphically:
+xbar = seq(62, 72, 0.01) # making sequnce of possible numbers
+plot(xbar, dnorm(xbar, mu0, se), main = "Distribution of xbar", type = "l", yaxs="i")
+
+# Non-Standardized Critical Value 
+cv = qnorm(1-alpha, mu0, se)
+abline(v= cv, col = "red") 
+points(xbar, dnorm(xbar, mu.true, se), type = "l", lty=2, yaxs="i")
+
+legend(70, .30, legend=c("Null Dist", "True Dist"),
+       lty=1:2, cex=0.5)
+# beta: type II error is probability of not rejecting H0 whil it is not true
+# The left tail area under the dashed line curve
+# area under curve for before red line is 
+# We need to know true mean to get type 2 error
+beta = pnorm(cv, mu.true, se) 
+paste("Type II error probability",beta)
+
+power = 1 - beta
+paste("power",power)
+
+# Change alpha, n and sigma and see the impacts on beta
+# alpha inc , type 2 error decres
+# n inc from 30 to 100 beta i.e type 2 error decreases.
+# sigma increas type 2 error beta incr 
+
+
+
+## Try simulation:
+# First, simulate the null distribution:
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+rv = rnorm(ntot, mu0, sigma) 
+rvm = matrix(rv, nrow = nsim)
+xbars.null = rowMeans(rvm)
+hist(xbars.null, freq=F, main ="Null Histogram for Xbars")
+cv.null = quantile(xbars.null, 1-alpha)
+abline(v = cv.null, col = "red")
+
+# Then simulate the true distribution:
+rv.true = rnorm(ntot, mu.true, sigma)
+rvm.true = matrix(rv.true, nrow = nsim)
+xbars.true = rowMeans(rvm.true)
+hist(xbars.true, freq=F, main ="True Histogram for Xbars")
+abline(v = cv.null, col = "red")
+# Type II Error by simulation:
+beta = mean(xbars.true < cv.null)
+paste("Type II Error by simulation",beta)
+```
+SAMPLE SIZE USING TYPE I TYPEII ERROR
+
+If we wish to have a test power of 0.95 at mu = 12.25 fl oz., then what is req sample size for this test? 
+H0: Mu <= 12.2
+H1: Mu > 12.2
+sigma = 0.08
+alpha = 0.01
+```{r}
+#H0: Mu <= 12.2
+#H1: Mu > 12.2
+mu = 12.25
+power = 0.95
+
+sigma = 0.08
+alpha = 0.01
+mu0 = 12.2
+
+#power = 1- beta
+beta = 1 - power
+paste("beta",beta)
+
+delta = abs(mu0 - mu)
+paste("delta",delta)
+Zalpha = qnorm(1-alpha)
+paste("Zalpha",Zalpha)
+Zbeta = qnorm(1-beta)
+paste("Zbeta",Zbeta)
+n = ((Zalpha+Zbeta)*sigma/delta)^2
+paste("nos of samples",n)
+```
+
+COMPARING TWO POPULATION PROPORTION ONE SIDED POSITIVE
+Do social recommendations increase ad eectiveness? A study of online
+video viewers compared viewers who arrived at an advertising video for a particular brand
+by following a social media recommendation link to viewers who arrived at the same video
+by web browsing. Data were collected on whether the viewer could correctly recall the brand
+being advertised after seeing the video.
+Arrival Method Correct Recall (Yes) Incorrect Recall (No)
+Recommendation 409 148
+Browsing 196 88
+(a) Set up the null and alternative hypotheses to try to determine whether brand recall is
+higher following a social media recommendation than with only web browsing.
+Conduct the hypothesis test dened in (a), using the 0.05 level of signicance.
+
+```{r}
+#H0: p1 - p2 <= 0
+#H1: p1 - p2 > 0
+# Two sided test
+alpha = 0.05
+
+X1 = 409
+n1 = 409+148
+
+phat1 = X1/n1
+paste("n1 sample size condition",n1 > max(10/phat1, 10/(1-phat1)))
+
+X2 = 196
+n2 = 196+88
+
+phat2 = X2/n2
+paste("n2 sample size condition",n2 > max(10/phat2, 10/(1-phat2)))
+
+# Assume phat1 and phat2 are normally distributed
+phat = (X1+X2)/(n1+n2)
+paste("phat",phat)
+
+SE = sqrt(phat*(1-phat)*(1/n1 + 1/n2))
+paste("SE", SE)
+ZStat = (phat1 - phat2)/SE
+paste("ZStat", ZStat)
+
+CV = qnorm(1-alpha)
+paste("CV", CV)
+
+# Rejection rule: 
+paste("CV Rejection Rule",ZStat > CV)
+
+#Conclusion:
+#Fail to Reject Null Hypothysis at alpha = 0.05
+
+# pval
+# pval = P(Z > |Z0|)
+pval = 1 - pnorm(ZStat)
+paste("pval",pval)
+paste("pval rejection rule",pval < alpha)
+
+# pval is almost 0, it is less than alpha i.e 0.05 , FAIL TO reject H0
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=CV, col = "red") # Critical value
+abline(v = ZStat , col = "blue") # ZStat
+```
+COMPARING TWO POPULATION PROPORTION ONE SIDED NEGATIVE
+
+```{r}
+#H0: p1 - p2 >= 0
+#H1: p1 - p2 < 0
+# Two sided test
+alpha = 0.05
+
+X1 = 409
+n1 = 409+148
+
+phat1 = X1/n1
+paste("n1 sample size condition",n1 > max(10/phat1, 10/(1-phat1)))
+
+X2 = 196
+n2 = 196+88
+
+phat2 = X2/n2
+paste("n2 sample size condition",n2 > max(10/phat2, 10/(1-phat2)))
+
+# Assume phat1 and phat2 are normally distributed
+phat = (X1+X2)/(n1+n2)
+paste("phat",phat)
+
+SE = sqrt(phat*(1-phat)*(1/n1 + 1/n2))
+paste("SE", SE)
+ZStat = (phat1 - phat2)/SE
+paste("ZStat", ZStat)
+
+CV = qnorm(1-alpha)
+paste("CV", CV)
+
+# Rejection rule: 
+paste("CV Rejection Rule",ZStat < -CV)
+
+#Conclusion:
+#Fail to Reject Null Hypothysis at alpha = 0.05
+
+# pval
+# pval = P(Z > |Z0|)
+pval = 1 - pnorm(ZStat)
+paste("pval",pval)
+paste("pval rejection rule",pval < alpha)
+
+# pval is almost 0, it is less than alpha i.e 0.05 , FAIL TO reject H0
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=-CV, col = "red") # Critical value
+abline(v = ZStat , col = "blue") # ZStat
+```
+
+COMPARING TWO POPULATION PROPORTION TWO SIDED
+
+Suppose that early in an election campaign, a telephone poll of 800 registered
+voters shows that 460 favor a particular candidate. Just before Election Day, a second poll
+shows that 520 of 1,000 registered voters now favor that candidate. At the 5% signicance
+level, is there sucient evidence that the candidate's popularity has changed?
+
+```{r}
+#H0: p1 - p2 = 0
+#H1: p1 - p2 != 0
+# Two sided test
+alpha = 0.05
+
+X1 = 460
+n1 = 800
+
+phat1 = X1/n1
+paste("n1 sample size condition",n1 > max(10/phat1, 10/(1-phat1)))
+
+X2 = 520
+n2 = 1000
+
+phat2 = X2/n2
+paste("n2 sample size condition",n2 > max(10/phat2, 10/(1-phat2)))
+
+# Assume phat1 and phat2 are normally distributed
+phat = (X1+X2)/(n1+n2)
+paste("phat",phat)
+
+SE = sqrt(phat*(1-phat)*(1/n1 + 1/n2))
+paste("SE", SE)
+ZStat = (phat1 - phat2)/SE
+paste("ZStat", ZStat)
+
+CV = qnorm(1-alpha/2)
+paste("CV", CV)
+
+# Rejection rule: 
+paste("CV Rejection Rule",ZStat > CV || ZStat < -CV)
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# pval
+# pval = 2 * P(Z > |Z0|)
+pval = 2 * (1 - pnorm(abs(ZStat)))
+paste("pval",pval)
+paste("pval rejection rule",pval < alpha)
+
+# pval is almost 0, it is less than alpha i.e 0.05 , reject H0
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-CV, CV), col = "red") # Critical value
+abline(v = ZStat , col = "blue") # ZStat
+
+
+```
+TWO SAMPLE T-TEST INDEPENDENT ONE SIDED
+
+A bridge construction rm purchases a certain type of shear pin from an
+outside supplier. Currently, the rm purchases their pins from Supplier A. Recently, a sales
+representative from Supplier B visited the rm. Supplier B claimed that their mean tensile
+strength is larger. As a result of this visit, the construction rm has asked you to test this
+claim using 23 of each suppliers pins and a level of signicance of 0.05.
+(a) State the null and alternative hypotheses.
+The results of the test were: X
+A = 5263:8, X
+B = 5512:2; sA = 37:3; sB = 52:8
+(b) Identify the test statistic and critical region. State the conclusion from the test and
+nd the P-value for the test.
+
+```{r}
+# H0: mu1 - mu2 >= 0
+# Ha: mu1 - mu2 < 0
+
+alpha = 0.05
+
+# Sample 1:
+xbar1 = 5263.8
+n1 = 23
+s1 = 37.3
+
+# Sample 2:
+xbar2 = 5512.2
+n2 = 23
+s2 = 52.8
+
+# null Hypothesis
+D0 = 0
+
+# Lets start performing a t test
+xbar.diff = xbar1-xbar2
+
+SE = sqrt(s1^2/n1 + s2^2/n2)
+paste("SE",SE)
+# find test Statistic 
+Tstat = (xbar.diff - D0)/SE
+paste("Tstat",Tstat)
+
+# You can use this function for finding the degree of freedom for 2sample t test
+df.t <- function(s1, s2, n1, n2){
+  nom = (s1^2/n1 + s2^2/n2)^2
+  denom = (s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1)
+  nom/denom
+}
+
+df = df.t(s1,s2,n1,n2)
+paste("df",df)
+
+# Is Zstat falls in the the critical region? Since it's one-sided test:
+alpha = 0.05
+CV = qt(1-alpha, df)
+paste("CV",CV)
+
+paste("CV Rejection Criteria",Tstat < -qt(1-alpha/2, df))
+
+# finding p-value
+# pvalue = 2*P(T > |Tstat|) = 2*(1 - P(T <= Tstat))
+pval = pt(Tstat, df) 
+paste("pval",pval)
+paste("Pval Rejection Criteria", pval < alpha)
+# pval is less than than alpha we reject null hypothesis.
+
+
+```
+```{r}
+# H0: mu1 - mu2 <= 0
+# Ha: mu1 - mu2 > 0
+
+# null Hypothesis 
+D0 = 0
+ctr = read.csv('control.csv')
+ctr[is.na(ctr)] <- 0
+head(ctr)
+
+alpha = 0.05
+
+# Sample 1:
+xbar1 = mean(ctr$Right.thread)
+n1 = length(ctr$Right.thread)
+s1 = sd(ctr$Right.thread)
+
+# Sample 2:
+xbar2 = mean(ctr$Left.thread)
+n2 = length(ctr$Left.thread)
+s2 = sd(ctr$Left.thread)
+
+# null Hypothesis
+D0 = 0
+
+# Lets start performing a t test
+xbar.diff = xbar1-xbar2
+
+SE = sqrt(s1^2/n1 + s2^2/n2)
+paste("SE",SE)
+# find test Statistic 
+Tstat = (xbar.diff - D0)/SE
+paste("Tstat",Tstat)
+
+# You can use this function for finding the degree of freedom for 2sample t test
+df.t <- function(s1, s2, n1, n2){
+  nom = (s1^2/n1 + s2^2/n2)^2
+  denom = (s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1)
+  nom/denom
+}
+
+df = df.t(s1,s2,n1,n2)
+paste("df",df)
+
+# Is Zstat falls in the the critical region? Since it's one-sided test:
+
+CV = qt(1-alpha, df)
+paste("CV",CV)
+
+paste("CV Rejection Criteria",Tstat > CV)
+
+# finding p-value
+# pvalue = 2*P(T > |Tstat|) = 2*(1 - P(T <= Tstat))
+pval = 1 - pt(Tstat, df) 
+paste("pval",pval)
+paste("Pval Rejection Criteria", pval < alpha)
+
+t.test(ctr$Right.thread, ctr$Left.thread, paired = F, alternative = 'greater')
+
+
+```
+
+
+TWO SAMPLE T-TEST DEPENDENT PAIRED TWO SIDED
+
+A consumer ratings magazine has developed a test to compare the mean life
+length of two brands of batteries. Five electronic toys were used to make the comparison.
+Two of each type of toy were purchased, and one toy of each type was powered by each type
+of battery (Type 1 and Type 2). The resulting durations of toy usage are given below.
+
+```{r}
+# Paired Test
+
+# H0: muD  =  0
+# Ha: muD neq 0
+
+# null Hypothesis 
+D0 = 0
+
+type1 = c(53.6, 103.4, 68.2, 88.4, 111.6)
+type2 = c(61.4, 112.8, 67.1, 92.3, 121.5)
+cor(type1, type2)
+plot(type1, type2)
+
+diff = type1-type2 
+#paste("Diff",diff)
+# Sample information
+n = length(diff); 
+Dbar = mean(diff);
+sD = sd(diff); 
+
+# Is this diffrence just happened by chance? 
+# Or if we repeat sampling we expect to see differences again.
+#Dbar is -5.98 type 2 is better as it is neg
+SE = (sD/sqrt(n)) 
+# find test Statistic 
+Tstat = (Dbar-D0)/ SE
+paste("Tstat",Tstat)
+
+df = n-1
+paste("df",df)
+# Is Tstat falls in the the critical region? Since it's one-sided test:
+alpha = 0.05
+CV = qt(1-alpha/2, df)
+paste("CV",CV)
+
+paste("CV Rejection Criteria", Tstat > CV || Tstat < -CV)
+
+# df is small tail is large
+# chance of rej is lower, test is weak
+#We reject H0 at 5 % level of significance because of the lower tail 
+
+# finding p-value
+# pvalue = 2*P(T > |Tstat|) = 2*(1 - P(T <= Tstat))
+pval = 2*(1-pt(abs(Tstat), df))  
+paste("pval",pval)
+paste("Pval Rejection Criteria", pval < alpha)
+
+# R function
+t.test(type1, type2, paired = TRUE)
+
+```
+
+```{r}
+# H0: mu1 - mu2 <= 0
+# Ha: mu1 - mu2 > 0
+
+# null Hypothesis 
+D0 = 0
+ctr = read.csv('control.csv')
+ctr[is.na(ctr)] <- 0
+head(ctr)
+
+alpha = 0.05
+
+diff = ctr$Left.thread-ctr$Right.thread 
+#paste("Diff",diff)
+# Sample information
+n = length(diff); 
+Dbar = mean(diff);
+sD = sd(diff); 
+
+# Is this diffrence just happened by chance? 
+# Or if we repeat sampling we expect to see differences again.
+#Dbar is -5.98 type 2 is better as it is neg
+SE = (sD/sqrt(n)) 
+# find test Statistic 
+Tstat = (Dbar-D0)/ SE
+paste("Tstat",Tstat)
+
+df = n-1
+paste("df",df)
+# Is Tstat falls in the the critical region? Since it's one-sided test:
+alpha = 0.05
+CV = qt(1-alpha, df)
+paste("CV",CV)
+
+paste("CV Rejection Criteria", Tstat > CV)
+
+# df is small tail is large
+# chance of rej is lower, test is weak
+#We reject H0 at 5 % level of significance because of the lower tail 
+
+# finding p-value
+
+pval = 1 - pt(Tstat, df) 
+paste("pval",pval)
+paste("Pval Rejection Criteria", pval < alpha)
+
+# R function
+t.test(ctr$Left.thread, ctr$Right.thread, paired = TRUE, alternative = 'greater')
+```
+
+The Chi Squared Distribution as a sum of squared Z values
+```{r}
+## The Chi Squared Distribution as a sum of squared Z values
+
+df = 10
+
+## The density function of the chi squared distribution 
+## with 10 degrees of freedom is shown below.
+
+chi.values = seq(0,3*df,length.out=10000)
+chi.dens = dchisq(chi.values,df)
+
+plot(chi.values, chi.dens, type="l", 
+     main=paste0("Chi Square Distribution for the Sum of ",
+                 df, " Squared Z's"), xlab="Chi-Squared Value", 
+     ylab="density", yaxs="i", ylim = c(0, 1.2*max(chi.dens) ))
+abline(v = df, lwd=2)
+
+
+## The distribution of the sum of squared z-values:
+
+NSIM = 10000
+df = 10
+z = rnorm(df*NSIM,0,1)
+z = matrix(z, nrow=NSIM,ncol=df)
+chisq = rowSums(z^2)
+
+hist(chisq, freq=F, breaks=100)
+abline(v=df, col = "green")
+```
+CHISQ TEST
+
+```{r}
+
+# Data are random samples
+# Categories defining the table are ME
+# Expected cell counts are not too samll
+
+data <- read.csv("http://tiny.cc/amazonStat")
+
+head(data)
+
+data$incomeLevel = c("L1:25orLess", "L2:26to50", 
+                     "L3:51to75", "L4:76to100", "L5:100orMore")[
+                       findInterval(data$income, c(-Inf, 25000, 50000, 
+                                                   75000, 100000, Inf))]
+
+head(data)
+
+# H0: Income and Product category are independent of each other
+# Ha: Income and Product category are not independent of each other
+
+# Number of Observations
+n = length(data$income)
+n
+
+# Creating contingency table:
+obs.table <- table(data$category, data$incomeLevel)
+obs.table
+
+mosaicplot(t(obs.table), col = 2:3)
+
+# Creating the expected null hypothesis table. 
+# A table that rows and columns are independet of each other.
+rowsum = rowSums(obs.table)
+colsum = colSums(obs.table)
+exp.table <- obs.table
+for (i in 1:nrow(obs.table)) {
+  for (j in 1:ncol(obs.table)) {
+    exp.table[i,j] = rowsum[i]*colsum[j]/n
+  }
+}
+exp.table
+mosaicplot(t(exp.table), col = 2:3)
+
+# Finding Chi Square Test Statistic
+X2.null = sum((obs.table-exp.table)^2/exp.table)
+X2.null
+
+# Critical value:
+df = (nrow(obs.table)-1)*(ncol(obs.table)-1)
+qchisq(1-alpha, 4)
+
+# If Chi Square Test Statistic drops in the region of rejection, we reject H0:
+X2.null > qchisq(1-alpha, 4)
+# So income and product caregory are not independent of each other.
+
+# What happened graphically:
+x = seq(0, 40, 0.01) # making sequnce of numbers between -4 and 4
+plot(x, dchisq(x, df), main = "H0 distribution", type = "l", yaxs="i")
+abline(v = qchisq(1-alpha, 4), col = "red") # Critical value
+abline(v = X2.null , col = "blue") # Test stat
+
+# finding p-value
+# pvalue = P(X2 > X2.null) = 1 - P(X2 <= X2.null)
+1-pchisq(X2.null, df)
+
+# Do everything quickly by chisq.test function:
+test = chisq.test(obs.table) 
+test
+
+
+```
+TWO SAMPLE VAR F TEST
+```{r}
+#Population are independent of each other
+# population are normally distributed
+A = c(801, 814, 784, 836, 820)
+B = c(752, 718, 776, 742, 763)
+
+var.A = var(A)
+var.B = var(B)
+
+var.A
+var.B
+boxplot(A,B)
+
+# H0: sigma2B/sigma2A <= 1
+# Ha: sigma2B/sigma2A > 1
+
+
+# Finding F Test Statistic
+F0 = var.B/var.A
+F0
+
+# Critical value:
+df1 = length(B) - 1
+df2 = length(A) - 1
+qf(1-alpha, df1, df2)
+
+# If F Test Statistic drops in the region of rejection, we reject H0:
+F0 > qf(1-alpha, df1, df2)
+
+
+# finde p-value
+1-pf(F0, df1,df2)
+
+#Fail to reject
+#Variance of catalyst B is not larger than A
+
+var.test(B, A, alternative = 'greater')
+
+# Two tail test
+# H0: sigma2B/sigma2A = 1
+# Ha: sigma2B/sigma2A != 1
+
+
+# Finding F Test Statistic
+F0 = var.B/var.A
+F0
+
+# Critical value:
+df1 = length(B) - 1
+df2 = length(A) - 1
+qf(1-alpha/2, df1, df2)
+
+# If F Test Statistic drops in the region of rejection, we reject H0:
+F0 > qf(1-alpha/2, df1, df2)
+
+
+# finde p-value
+2*(1-pf(F0, df1,df2))
+
+#Fail to reject
+#Variance of catalyst B is not larger than A
+
+var.test(B, A)
+
+```
+```{r}
+1 - pchisq( 14.329, 7)
+```
+

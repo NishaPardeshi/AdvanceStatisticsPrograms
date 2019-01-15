@@ -1,0 +1,330 @@
+---
+title: "Central Limit Theorem"
+author: "Alireza Sheikh-Zadeh, PhD"
+date: "September 25, 2018"
+output: html_document
+---
+
+
+
+In probability theory, the central limit theorem (CLT) establishes that, in some situations, when independent random variables are added or averaged, their properly normalized sum tends toward a normal distribution (informally a "bell curve") even if the original variables themselves are not normally distributed. The theorem is a key concept in probability theory because it implies that probabilistic and statistical methods that work for normal distributions can be applicable to many problems involving other types of distributions.
+
+In summary, as the sample size gets large enough, the sampling distribution of the sample mean becomes almost normal regardless of shape of population.
+
+
+**Case 1: Population is normally distributed, we take a sample of size n, then what is the distribution of $\bar{X}$? What sample size is appropriate?**
+
+In this problem, we simulate normally distributed random samples for the height of adult women in the US.
+
+First enter the sample size - this is the key ingredient to the Central Limit Theorem.
+
+```{r}
+# In this example it refers to the size of the pool of adult women.
+n = 5
+```
+
+After that, enter number of simulations- not very important; just make it large, but not so large that it takes forever to run.
+
+```{r}
+#  In this example nsim refers to a set of nsim potential (random) future experiences of the pool of the n adult women.
+nsim = 1000
+```
+
+Enter probability model - this one is the adult women height. Then start the simulation.
+
+```{r}
+set.seed(1234)
+
+# Heights are normally distributed and the true parameters are as follow:
+mu = 65 #inch
+sigma = 3.5 #inch
+
+ntot = n*nsim 
+
+rv   = rnorm(ntot, mu, sigma)
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+
+xbar = rowMeans(rvm)
+
+# You can find rowMean by using apply finction as well. 
+# xbar = apply(rvm, MARGIN=1, FUN=mean), MARGIN=1 means we apply our function on rows. 
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average height of", n, "women"))
+
+qqnorm(xbar)
+qqline(xbar)
+```
+
+Since our population is normally distributed, $\bar{X}$ with any sample size (n) is normally distributed.
+
+**Standard error: ** The standard error (SE) of a statistic (usually an estimate of a parameter) is the standard deviation of its sampling distribution or an estimate of that standard deviation. If the parameter or the statistic is the mean, it is called the standard error of the mean (SEM). 
+
+```{r}
+# By theory:
+sem.t = sigma/sqrt(n)
+sem.t
+
+# By simulation
+sem.s = sd(xbar)
+sem.s
+```
+
+Lets compare the shape of population $X$ versus the shape of sample means $\bar{X}$. 
+
+```{r}
+# Population:
+x = seq(50, 80, 0.01)
+plot(x, dnorm(x, mu, sigma), type = "l", ylim = range(0, 0.3), xlab = "X is black, and Xbar is red")
+
+# sample: Sample means are red.
+points(x, dnorm(x, mean(xbar), sd(xbar)), type = "l", col="red")
+```
+
+
+**Case 2: Population is not normally distributed, we take a sample of size n, then what is the distribution of $\bar{X}$? What sample size is appropriate?**
+
+In this problem, we simulate the time between arrival of customers to a fast food with a rate of 0.5 customers per minutes Time between arrivals are exponentially distributed.
+
+First enter the sample size.
+
+```{r}
+# In this example it refers to the size of the pool of customers.
+n = 30
+```
+
+After that, enter number of simulations.
+
+```{r}
+#  In this example nsim refers to a set of nsim potential (random) future experiences of the pool of the n customers.
+nsim = 1000
+```
+
+Enter probability model - this one is the adult women height.
+
+```{r}
+# Time between arrivals are exponentially distributed and the true parameter are as follow:
+lambda = 0.5 #customers per minutes
+
+ntot = n*nsim 
+
+rv   = rexp(ntot, lambda)
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+
+xbar = rowMeans(rvm)
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average TBA of ", n, "customers"))
+
+qqnorm(xbar)
+qqline(xbar)
+
+```
+
+
+
+
+
+$\bar{X}$ is not normally distributed. In order to make it normal we need to increase the sample size. That's the entire message of the central limit theorem.
+
+```{r}
+set.seed(1234)
+
+# Change sample size
+n = 57
+
+ntot = n*nsim 
+
+rv   = rexp(ntot, lambda)
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+
+xbar = rowMeans(rvm)
+
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average TBA of ", n, "customers"))
+
+qqnorm(xbar)
+qqline(xbar)
+```
+
+Now we can see that $\bar{X}$ is normally distributed.
+
+
+Sample Size Condition:  A normal model provides 
+an accurate approximation to the sampling 
+distribution of $\bar{X}$ if the sample size n is larger than 
+10 times the squared skewness and larger than 10 
+times the absolute value of the kurtosis.
+
+What is the appropriate sample size for the TBA example? 
+
+
+```{r}
+library(e1071)
+skew <- skewness(rv)
+kurt <- kurtosis(rv)
+
+10*skew^2
+10*abs(kurt)
+```
+
+
+
+**Case 3: Population is a discrete random variable and the distribution is highly skewed. We take a sample of size n, then what is the distribution of $\bar{X}$? What sample size is appropriate?**
+
+In this problem we consider a simplified model of the insurance industry. A life insurance company sells a policy to a 21-year-old female. (Males die off faster at this age). 
+
+The policy pays 100 thousand dollars if the insured person dies within the next five years. The company collects 1 thousand dollars at the beginning of each year as payment for the insurance.
+
+
+We measure our numbers in thousands; the insurance policy payoff will be written as \$100 and the annual premium is \$1. Let the random variable *X* represent the amount the company earns from the policy, \$1 per year less the \$100 it must pay if the insured dies in the next 5 years. The probability that a randomly chosen female will die each year at this age is approximately 0.002. Based on the information given we obtain the distribution of the random variable X provided in the table below. Note that 99% of the time the insurance company makes a small profit (the premium) but the other 1% of the time the company loses a lot of money.
+
+Enter the sample size. In this example it refers to the size of the pool of insured customers.
+
+```{r}
+set.seed(123)
+n = 100
+
+nsim = 1000
+
+# Enter probability model - this one is the insurance example
+x = c(-99,-98,-97,-96, -95, 5)
+p = c(.002, .002, .002, .002, .002, .99)
+
+ntot = n*nsim
+
+rv = sample(x, ntot, p, replace=TRUE)
+ 
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+ 
+xbar = rowMeans(rvm)
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average of", n, "policies"))
+
+```
+
+$\bar{X}$ is not normally distributed. 
+
+Increase the sample size and examine the distribution of $\bar{X}$ again.  
+
+```{r}
+set.seed(123)
+
+n = 2000
+
+nsim = 1000
+
+# Enter probability model - this one is the insurance example
+x = c(-99,-98,-97,-96, -95, 5)
+p = c(.002, .002, .002, .002, .002, .99)
+
+ntot = n*nsim
+
+rv = sample(x, ntot, p, replace=TRUE)
+ 
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+ 
+xbar = rowMeans(rvm)
+
+hist(xbar, freq=FALSE, main = paste("Distribution of average of", n, "policies"))
+abline(v = 4.4, col = "red")
+```
+
+```{r}
+library(e1071)
+skew <- skewness(rv)
+kurt <- kurtosis(rv)
+
+10*skew^2
+10*abs(kurt)
+```
+
+
+**Question: ** Estimate the probability that average earnings is more than 4.4?
+
+
+```{r}
+# Theoritical Answer
+# P(Xbar >4.4)
+# By theory Xbar is normally distributed
+mu = sum(x*p)
+mu
+
+var = sum((x-mu)^2 * p)
+sigma = sqrt(var)
+sigma
+
+sigma/sqrt(n)
+
+# P(Xbar >4.4) = 
+1-pnorm(4.4, mu, sigma/sqrt(n))
+
+# By Simulation
+mean(xbar > 4.4)
+
+```
+
+
+# Simulating Sample Proportion
+
+
+```{r}
+set.seed(123)
+
+n = 200
+
+nsim = 1000
+
+# Enter probability model - this one is the insurance example
+x = c(0, 1)
+p = c(.95, 0.05)
+
+ntot = n*nsim
+
+rv = sample(x, ntot, p, replace=TRUE)
+ 
+rvm = matrix(rv, ncol=n, byrow=TRUE)
+ 
+xsum = rowSums(rvm)
+
+phat = xsum/n
+
+hist(phat, freq=FALSE, main = "Distribution of proportion of Vegeterians")
+
+```
+
+
+```{r}
+10/0.05
+10/0.95
+```
+
+# Practice Problem 3:
+
+```{r}
+# Part a: 
+# population proportion is given: p = 0.501
+
+# phat is normally distributed
+
+mu = 0.501
+se = sqrt(0.501*0.499/1000)
+
+# P(phat > 0.53)
+1 - pnorm(0.53, mu, se)
+
+
+# Part b: 
+# population proportion is given: p = 0.56
+
+# phat is normally distributed
+
+mu = 0.56
+se = sqrt(0.56*0.44/1000)
+
+# P(phat > 0.53)
+1 - pnorm(0.53, mu, se)
+
+```
+
+
+
+

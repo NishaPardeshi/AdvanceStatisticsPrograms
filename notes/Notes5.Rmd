@@ -1,0 +1,539 @@
+---
+title: "Notes5"
+author: "nisha pardeshi"
+date: "1 October 2018"
+output: html_document
+---
+
+Interval Estimation for Population Mean
+```{r}
+# Xbar = 102, n=50, sigma=10, what is 95% CI of mu
+Xbar = 102
+n=50
+sigma=10
+alpha=1-0.95
+
+#Zalpha/2 
+CV = qnorm(alpha/2)
+paste("CV", CV)
+
+SE = sigma/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+
+```
+```{r}
+# Xbar = 102, n=50, sigma=10, what is 99% CI of mu
+Xbar = 102
+n=50
+sigma=10
+alpha=1-0.99
+
+#Zalpha/2 
+CV = qnorm(alpha/2)
+paste("CV", CV)
+
+SE = sigma/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+```{r}
+# Xbar = 102, n=50, sigma=10, what is 100% CI of mu
+Xbar = 102
+n=50
+sigma=10
+alpha=1-1
+
+#Zalpha/2 
+CV = qnorm(alpha/2)
+paste("CV", CV)
+
+SE = sigma/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+
+Interval Estimation for Unknown Sigma
+```{r}
+#Xbar = 81, s=30, n=16 
+# Assume population normally distributed
+# 95% of CI of mu
+Xbar = 81
+s = 30
+n = 16
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+```{r}
+# Assume population normally distributed
+a <- c(1,4,4,4,5,5,5,8)
+b <- 1:8
+
+# Construct 95% CI of a
+Xbar = mean(a)
+s = sd(a)
+n = length(a)
+paste("Xbar", Xbar)
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+```{r}
+# Construct 95% CI of b
+Xbar = mean(b)
+s = sd(b)
+n = length(b)
+alpha = 1 - 0.95
+paste("Xbar", Xbar)
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+
+# why a and b produce different CI even if mean and range are same
+# Because SE differs in both case
+```
+```{r}
+mpg <- c(20,34,22,26,32,23,20,28,33,32,35,31,29,24)
+# Construct 99% CI, assuming normal distribution
+Xbar = mean(mpg)
+s = sd(mpg)
+n = length(mpg)
+alpha = 1 - 0.99
+paste("Xbar", Xbar)
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+
+Interval Estimation for population proportion
+```{r}
+# Of 100 exec surveyed, 93 stated that sal of top mangmt should be based on performance.
+phat = 93/100
+n = 100
+phat * n > 10
+(1-phat)*n > 10
+n > max(10/phat, 10/(1-phat))
+# n is not large enough CI is not reliable
+
+# Construct 95% CI
+
+
+# Assume phat is normally distributed
+alpha = 1 - 0.95
+CV = qnorm(alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1 - phat)/n)
+paste("SE", SE)
+
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+
+```
+
+```{r}
+#Estimate proportion of househole to purchase tel line,
+#Data for additional household is random sample of 500 house.
+# Results indicate 175 would purchase.
+phat = 175/500
+n = 500
+phat*n > 10
+(1-phat)*n > 10
+n > max(10/phat, 10/(1-phat))
+# n is large enough CI is reliable
+# Construct 99% CI the would purchase
+alpha = 1-0.99
+CV = qnorm(1-alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1-phat)/n)
+paste("SE", SE)
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+
+# Between 30% and 40% chances are they would buy
+```
+Determining Sample Size
+```{r}
+# If you want to be 95% confident of estimating popl mean to within a 
+#sampling error of +-2.2 and sdev assumed to be 17, what is sample size req?
+e = 2.2
+sigma = 17
+alpha = 1- 0.95
+CV = qnorm(alpha/2)
+paste("CV", CV)
+n = (CV * sigma / e)^2
+paste('Sample size req n is: ',n)
+```
+What advertising medium gives a brand the most credibility in influencing brand decisions? According to survey 37% of millenials point to TV.
+```{r}
+phat = 0.37
+# To conduct a study that would provide 95% Conf 
+#tht point estimate is correct to within +- 0.05 of population prop,
+# how large a sample size is req
+e = 0.05
+alpha = 1-0.95
+CV = qnorm(alpha/2)
+CV
+n = (CV/e)^2 * phat*(1 - phat)
+
+paste('Sample size req n is: ',n)
+
+# To conduct followup study that would provide CI of 95%, point estimate correct within +-0.02 of population proportion, how large sample size is req.
+e = 0.02
+n = (CV/e)^2 * phat*(1 - phat)
+paste('Sample size req n is: ',n)
+```
+
+```{r}
+# Author examined 70 reports from 1995 to 1996. They classified 30 of reports as fav to drugs, 17 neutral and 23 critical.
+
+# Construct 95% CI for true prop of all fav reports
+phat = 30/70
+n = 70
+phat*n > 10
+(1-phat)*n > 10
+n > max(10/phat, 10/(1-phat))
+# n is large enough
+alpha = 1 - 0.95
+CV = qnorm(alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1-phat)/n)
+paste("SE", SE)
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+
+## Construct 99% CI for true prop of all neutral reports
+phat = 17/70
+n = 70
+phat*n > 10
+(1-phat)*n > 10
+n > max(10/phat, 10/(1-phat))
+# n is large enough
+alpha = 1 - 0.99
+CV = qnorm(alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1-phat)/n)
+paste("SE", SE)
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+If bottled water distr wants to estimate within 95% C, mean amt of water in 1 gallon bottle to within +-0.003 gallons. Assume SD = 0.03gallons, what is sample size needed
+```{r}
+e = 0.003 
+sigma = 0.03
+alpha = 1 - 0.95
+CV = qnorm(alpha/2)
+paste("CV", CV)
+
+n = (CV * sigma / e)^2
+paste('Sample size req n is: ',n)
+```
+A corporate fleet which operates and manages car rentals for company employees
+found that the tire lifetime for their vehicles is normally distributed with a mean of 50,000 miles and standard deviation of 6500 miles.
+
+(a) What are the expected values for the mean and standard deviation of the sampling
+distribution given a sample size of 50.
+```{r}
+mu = 50000
+sigma = 6500
+n=50
+Xbar = mu =50000
+paste("E(Xbar):",Xbar)
+s = sigma / sqrt(n)
+paste("SDev: ",s)
+```
+
+(b) What is the probability that the sample mean lifetime for these 50 vehicles exceeds
+52,000?
+```{r}
+# P(Xbar > 52000) = 1 - P(Xbar < 52000)
+1 - pnorm(52000,Xbar, s)
+```
+What is the probability that the sample mean lifetime for those 50 vehicles is less than
+45,000?
+```{r}
+# P(Xbar < 45000)
+pnorm(45000,Xbar, s)
+```
+In a telephone survey of 1007 adults conducted by the History Channel and Roper Starch between October 13 and November 2, 1998, 735 respondents stated that they believe that a conspiracy was definitely or probably behind the assassination of President John F. Kennedy on November 22, 1963, in Dallas. Construct a 99% confidence interval for the true proportion of U.S. adults who believe that a conspiracy was behind the assassination.
+```{r}
+n = 1007
+phat =  735/n
+phat * n > 10
+(1-phat)*n > 10
+n > max(10/phat, 10/(1-phat))
+# n is large enough CI is reliable
+
+# Construct 99% CI
+# Assume phat is normally distributed
+alpha = 1 - 0.99
+CV = qnorm(alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1 - phat)/n)
+paste("SE", SE)
+
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+A quality characteristic of interest for a tea-bag-lling process is the weight of the
+tea in the individual bags. The label weight on the package indicates that the mean amount
+is 5.37 grams of tea in a bag. Problems arise if the bags are under-lled or if the mean
+amount of tea in a bag exceeds the label weight. The accompanying data are the weights,
+in grams, of a sample of 50 tea bags produced in one hour by a single machine (data le
+Teabags.csv).
+(a) Construct a 95% condence interval estimate for the population mean weight of the tea
+bags.
+Critical Value for 95 % condence interval is
+```{r}
+library(e1071)
+library(car)
+# Read Teabags csv file
+teabag = read.csv('Teabags.csv')
+# Calculate the mean of sample
+mean(teabag$Teabags)
+# Calculate standard deviation of sample
+sd(teabag$Teabags)
+hist(teabag$Teabags)
+qqPlot(teabag$Teabags)
+
+Xbar = mean(teabag$Teabags)
+s = sd(teabag$Teabags)
+n = 50
+
+n
+10*(skewness(teabag$Teabags))^2
+10*(abs(kurtosis(teabag$Teabags)))
+n > max (10*(skewness(teabag$Teabags))^2, 10*(abs(kurtosis(teabag$Teabags))))
+n > max(10*((skewness(teabag$Teabags))^2), (10*(abs(kurtosis(teabag$Teabags)))))
+#95% CI
+alpha = 1 - 0.95
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+
+
+```
+(d) Explain how to understand the 95% of the interval via simulation. Use simula-
+tion in your answer. Realize, of course, that the distributions that produce the
+data cannot possibly be normal, but do the simulation using normal distribution
+anyway.
+```{r}
+set.seed(1234)
+
+mu = mean(teabag$Teabags) #inch # This is a true population parameter.
+sigma = sd(teabag$Teabags) #inch # This is a true population parameter.
+
+n = length(teabag$Teabags) # sample size
+nsim = 10000 # Number of samples. Each sample is size n.
+
+ntot = n*nsim
+
+rv = rnorm(ntot, mu, sigma) # Generating many random numbers
+rvm = matrix(rv, ncol=n, byrow=TRUE) # Convert data to a nsim*n matrix
+
+xbars = apply(rvm,1, mean) # It's like finding rowMeans(rvm)
+
+alpha = 0.05
+
+lower = xbars - qnorm(1-alpha/2)*sigma/sqrt(n)
+upper = xbars + qnorm(1-alpha/2)*sigma/sqrt(n)
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+
+head(check)
+
+head(cbind(xbars, sigma, n, lower, upper, mu, check), 3)
+
+# What proportion of the created confidence intervals contain mu?
+mean(check)
+```
+
+```{r}
+set.seed(1234)
+
+Xbar = mean(teabag$Teabags)
+s = sd(teabag$Teabags)
+n = 50
+
+nsim = 1000 # Number of samples. Each sample is size n.
+
+ntot = n*nsim
+
+#Assuming normal distribution
+rv = rnorm(ntot, Xbar, s) # Generating many random numbers
+rvm = matrix(rv, ncol=n, byrow=TRUE) # Convert data to a nsim*n matrix
+
+#1 is for row and 2 stands for column
+#xbar 10000 rows returned
+xbars = apply(rvm,1, mean) # It's like finding rowMeans(rvm)
+
+#95% of the interval 
+alpha = 1-0.95
+
+lower = xbars - qnorm(alpha/2)*s/sqrt(n)
+upper = xbars + qnorm(alpha/2)*s/sqrt(n)
+
+check  = (lower < Xbar) & (Xbar < upper) # Check if confidence interval contains true mu.
+
+head(check)
+
+
+## An estimate of the true confidence level of the ordinary confidence interval:
+#cbind is like combine can use dataframe also
+#each row is sample
+head(cbind(xbars, s, n, lower, upper, xbar, check), 20) 
+# What proportion of the created confidence intervals contain mu?
+paste("Mean: ",mean(check))
+
+hist(teabag$Teabags)
+qqPlot(teabag$Teabags)
+```
+A survey by a national association is designed to estimate the proportion
+of member organizations that have both talent and development programs in place to
+drive human-capital management as well as the member organizations' mean annual
+employee turnover cost. A random sample of 100 member organizations reveals the
+following:
+Frontline employee turnover cost: X
+= $13,200, S = $1200. Forty-four member organizations have
+both talent and development programs in place to drive human-capital
+management.
+Construct a 99% condence interval estimate for the population mean front-line em-
+ployee turnover cost of member organizations.
+```{r}
+Xbar = 13200
+s = 1200
+n = 100
+
+#99% CI
+alpha = 1 - 0.99
+# SInce sigma is unknown we go for t distribution
+CV = qt(alpha/2, n-1)
+paste("CV", CV)
+
+SE = s/sqrt(n)
+paste("SE", SE)
+
+LL = Xbar - CV * SE
+UL = Xbar + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+
+Construct a 99% condence interval estimate for the population proportion of member
+organizations that have both talent and development programs in place to drive human-
+capital management.
+```{r}
+# 99% condence interval estimate
+n = 100
+phat = 44/n
+phat * n > 10
+(1-phat)*n > 10
+n > max(10/phat, 10/(1-phat))
+# n is large enough CI is reliable
+
+# Construct 99% CI
+# Assume phat is normally distributed
+alpha = 1 - 0.99
+CV = qnorm(alpha/2)
+paste("CV", CV)
+SE = sqrt(phat*(1 - phat)/n)
+paste("SE", SE)
+
+LL = phat - CV * SE
+UL = phat + CV * SE
+paste("LL", UL)
+paste("UL", LL)
+```
+(c) What sample size is needed to have 90% condence of estimating the population mean
+front-line employee turnover cost to within plus or $300?
+```{r}
+e = 300
+# 90% CI
+alpha = 1- 0.90
+CV = qnorm(alpha/2)
+paste("CV", CV)
+# sample size
+sn = (CV * s / e)^2
+paste('sample size is needed: ',sn)
+```
+
+(d) How many member organizations need to be selected to have 95% condence of estimat-
+ing the population proportion of organizations that have both talent and development
+programs in place to drive human-capital management to within plus or $0:035? As-
+sume that the association's survey provides a reliable point estimate of the proportion.
+Sampling error e = $0:035
+```{r}
+e = 0.035
+# 95% CI
+alpha = 1-0.95
+CV = qnorm(alpha/2)
+paste("CV", CV)
+# sample size
+sn = (CV/e)^2 * phat * (1-phat)
+paste('sample size is needed: ',sn)
+```
+

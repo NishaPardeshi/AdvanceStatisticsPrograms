@@ -1,0 +1,203 @@
+---
+title: "Notes6"
+author: "nisha pardeshi"
+date: "2 October 2018"
+output: html_document
+---
+
+```{r}
+# Ho: Mu <= 160
+# H1: M >160
+
+mu0 = 160
+
+# Sampling info
+n=36
+sigma = 30
+xbar = 172
+
+# Test Stat
+Z0 = (xbar-mu0)/(sigma/sqrt(n))
+Z0
+
+# Critical Value -One sided
+alpha = 1-0.95
+CV = qnorm(1-alpha)
+paste("CV",CV)
+# Rejection rule:
+Z0 > CV
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# What happened graphically:
+set.seed(123)
+nsim = 36
+ntot = n*nsim
+# Modeling real data
+rv = sample(0:1, ntot, p=c(0.83,0.17), replace=T) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+phats = rowMeans(rvm)
+#xbars.sim = rowMeans(rvm)
+hist(phats, freq=F, main="Simulated H0 Hist")
+abline(v=c(quantile(phats, alpha/2), 
+           quantile(phats, 1-alpha/2)), col = "red") # Critical value
+abline(v = phat, col = 'blue')
+```
+
+```{r}
+# pval =  Observed level of signiicance
+# P-value: P(Z > Z0)
+pval = 1 - pnorm(Z0)
+pval
+#If less than given level of significance we can reject it.
+# Is P-val is less than alpha, we reject it
+pval < alpha
+```
+
+```{r}
+# Ho: Mu != 3.6
+# H1: M = 3.6
+
+mu0 = 3.6
+
+# Sampling info
+n=25
+sigma = 0.05
+xbar = 3.18
+
+# Test Stat
+Z0 = (xbar-mu0)/(sigma/sqrt(n))
+Z0
+
+# Critical Value -One sided
+#Level of significance
+alpha = 0.05
+CV = qnorm(1-alpha)
+paste("CV",CV)
+# Rejection rule:
+Z0 > CV
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+# What happened graphically:
+z = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(z, dnorm(z), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-qnorm(1-alpha/2), qnorm(1-alpha/2)), col = "red") # Critical value
+abline(v = Z0 , col = "blue") # Z0
+```
+```{r}
+# Ho: Mu <= 1500
+# H1: M >1500
+
+mu0 = 1500
+
+# Sampling info
+n=115
+s = 581
+xbar = 1657
+
+# The null distribution xbar has foll param
+muXbar = mu0
+sigmaXbar = s/sqrt(n) # which we call SE of Xbar
+# Test Stat
+T0 = (xbar - mu0)/(s/sqrt(n))
+T0
+
+# Critical Value -One sided
+alpha = 0.05
+df = n-1
+CV = qt(1-alpha, df)
+paste("CV",CV)
+# Rejection rule:
+T0 > CV
+
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.05
+
+t = seq(-4, 4, 0.01) # making sequnce of numbers between -4 and 4
+plot(t, dnorm(t), main = "H0 distribution", type = "l", yaxs="i")
+abline(v=c(-qt(1-alpha, df), qt(1-alpha, df)), col = "red") # Critical value
+abline(v = T0 , col = "blue") # Z0
+
+# 0.2% of time we can observe it
+# Simulate the null distribution by normall distribution:
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = rnorm(ntot, mu0, sigma) # Why rnorm? Based on the assumption of ttest, population is normal.
+rvm = matrix(rv, nrow = nsim)
+xbars.sim = rowMeans(rvm)
+hist(xbars.sim, freq=F, main ="simulated Resampling Xbar Histogram for Xbars")
+# This is not hypothesis, we created sample from sampling data. We dont need abline 
+
+```
+
+```{r}
+x <- read.csv('steel.csv')
+#head(x)
+#a 
+# Ho: Mu = 8.46
+# H1: M  not equal 8.46
+
+mu0 = 8.46
+
+# Sampling info
+n=50
+s = sd(x$width)
+xbar = mean(x$width)
+
+# Test Stat
+T0 = (xbar - mu0)/(s/sqrt(n))
+T0
+
+# Critical Value -One sided
+alpha = 0.01
+df = n-1
+CV = qt(1-alpha/2, df)
+paste("CV",CV)
+# Rejection rule:
+(T0 > CV || T0 < -CV)
+
+#pval
+#pval = 2* P(T>|T0|)
+pval = 2 * (1 - pt(abs(T0), n-1))
+round(pval,5)
+#Conclusion:
+#Reject Null Hypothysis at alpha = 0.01
+
+# b
+# Assumption is that the population is normally distributed
+#c
+library(e1071)
+hist(x$width)
+qqnorm(x$width)
+qqline(x$width)
+# Based on sample we cannot conclude normality of the population
+qqnorm(x$width)
+n
+10*((skewness(x$width))^2)
+(10*(abs(kurtosis(x$width))))
+n > max(10*((skewness(x$width))^2), (10*(abs(kurtosis(x$width)))))
+# sample size is large enough, based on CLT we can assume the population is normal.
+
+```
+```{r}
+#Simulation by Bootstrapping ( Resampling from  data)
+set.seed(123)
+nsim = 10000
+ntot = n*nsim
+# Modeling real data
+rv = sample(x$width, ntot,replace = T) # sampling from data
+rvm = matrix(rv, nrow = nsim)
+xbars.sim = rowMeans(rvm)
+hist(xbars.sim, freq=F, main ="simulated H0 Histogram for Xbars")
+abline(v = quantile(xbars.sim, 0.95), col = "red")
+abline(v = xbar, col = "blue") 
+
+#pvalue
+mean(xbars.sim > xbar)
+```
+

@@ -1,0 +1,128 @@
+---
+title: "What Confidence Interval Means?"
+author: "Alireza Sheikh-Zadeh"
+date: "September 27, 2018"
+output:
+  html_document: default
+  word_document: default
+---
+
+A **confidence level** specifies the probability that our particular sample's interval estimate will in fact contain the population parameter.
+
+
+**Common Misinterpretations of Confidence Level**
+
+Many statisticians are at pains to remind non-statisticians that confidence levels are very easily misunderstood. One common misinterpretation is that your interval estimate will hold a certain percentage of all cases in the population. For example, one could mistakenly conclude that 95% of all of the weights of adult males in the United States will be between 150 and 165 pounds. A correct interpretation would be: We can be 95% confident that our interval estimate of 150 to 165 pounds will in fact contain the true population value. 
+
+Simulation example: Let's simulate normally distributed random samples for the height of adult women in the US. We generate a population data by simulation. Then we find 95% confidence interval for multiple samples taken from population. The sample size is n.  
+
+
+```{r}
+
+set.seed(1234)
+
+# Heights are normally distributed and the true parameters are as follow: 
+mu = 65 #inch # This is a true population parameter.
+sigma = 3.5 #inch # This is a true population parameter.
+
+n = 30 # sample size
+nsim = 100000 # Number of samples. Each sample is size n.
+ntot = n*nsim
+
+rv = rnorm(ntot, mu, sigma) # Generating many random numbers
+rvm = matrix(rv, ncol=n, byrow=TRUE) # Convert data to a nsim*n matrix
+
+xbars = apply(rvm,1, mean) # It's like finding rowMeans(rvm)
+
+alpha = 0.05
+
+lower = xbars - qnorm(1-alpha/2)*sigma/sqrt(n)
+upper = xbars + qnorm(1-alpha/2)*sigma/sqrt(n)
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+
+head(check)
+
+
+## An estimate of the true confidence level of the ordinary confidence interval:
+head(cbind(xbars, sigma, n, lower, upper, mu, check), 20) 
+
+# What proportion of the created confidence intervals contain mu?
+mean(check)
+
+```
+
+
+**Understanding the confidence interval for mu: Z versus t**
+
+Let's assume sigma is unknown. 
+
+
+```{r}
+# We need to find sample standard deviations. 
+s = apply(rvm,1, sd)
+
+# First use z critical value
+
+lower = xbars - qnorm(1-alpha/2)*s/sqrt(n)
+upper = xbars + qnorm(1-alpha/2)*s/sqrt(n)
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+mean(check)
+
+# Second use t critical value
+
+lower = xbars - qt(1-alpha/2, n-1)*s/sqrt(n)
+upper = xbars + qt(1-alpha/2, n-1)*s/sqrt(n)
+
+check  = (lower < mu) & (mu < upper) # Check if confidence interval contains true mu.
+mean(check)
+## Notice that the coverage rate is closer to 95% but not perfect.
+
+head(cbind(xbars, s, n, lower, upper, mu, check), 10) 
+
+```
+
+```{r}
+# Example 3 in the Note
+
+a <- c(1, 4, 4, 4, 5, 5, 5, 8)
+
+b <- 1:8
+
+# Part a:
+xbar = mean(a)
+xbar
+n = length(a)
+s = sd(a)
+
+se = s/sqrt(n)
+
+alpha = 0.05
+
+lower = xbar - qt(1-alpha/2, n-1)*se 
+upper = xbar + qt(1-alpha/2, n-1)*se 
+lower
+upper
+```
+
+```{r}
+b <- 1:8
+
+# Part b:
+xbar = mean(b)
+xbar
+n = length(b)
+s = sd(b)
+
+se = s/sqrt(n)
+
+alpha = 0.05
+
+lower = xbar - qt(1-alpha/2, n-1)*se 
+upper = xbar + qt(1-alpha/2, n-1)*se 
+lower
+upper
+```
+
+

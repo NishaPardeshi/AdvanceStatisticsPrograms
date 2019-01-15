@@ -1,0 +1,80 @@
+---
+title: "Note4"
+author: "nisha pardeshi"
+date: "19 September 2018"
+output: html_document
+---
+```{r}
+set.seed(123)
+# Create Normal distribution
+numsim = 100
+data = rnorm(numsim)
+hist(data)
+
+#
+qqnorm(data)
+qqline(data)
+library(car)
+qqPlot(data)
+```
+
+```{r}
+DOW = read.csv("http://tiny.cc/djia")
+# Is the return variable normally distributed
+qqPlot(DOW$return)
+```
+
+```{r}
+# For Multymodality
+set.seed(123)
+n = 1000
+
+# Data is combined from two non identically distributed process
+x1 = rnorm(n, 10, 5)
+x2 = rnorm(n, 30, 5)
+
+# combine data sets
+data = c(x1,x2)
+
+hist(data, breaks = 15)
+qqnorm(data)
+qqline(data)
+qqPlot(data)
+
+```
+
+```{r}
+# Right Skewed Data
+t = rexp(n, 1/10)
+hist(t)
+qqnorm(t)
+qqline(t)
+qqPlot(t)
+```
+
+
+
+```{r}
+# Left skewed data
+# nos of new books
+n1 = 100
+price1 = rnorm(n1, 100, 10)
+
+# nos of used book
+n2 = 20
+price2 = runif(n2, 40, 80) # Used books are cheaper
+
+#Combine both
+s = c(price1,price2)
+hist(s)
+qqnorm(s)
+qqline(s)
+qqPlot(s)
+```
+
+```{r}
+library("e1071")
+skewness(s)
+kurtosis(s)
+```
+
