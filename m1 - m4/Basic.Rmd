@@ -242,6 +242,7 @@ b = cummean(y2i)
 plot(main="n = 100", a, type='l', col="red", xlab="y", ylab="n")
 plot(main="n = 10000", b, type='l', col="green", xlab="n", ylab="y")
 
+output: rmarkdown::github_document
 
 ```
 
